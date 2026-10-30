@@ -1,9 +1,10 @@
 /**
  * Traffic incident: a short stretch of two-lane road, its lanes split by a
  * dashed line, and in the near lane a car broken down askew, a traffic cone
- * on the road behind it, one small cloud of smoke over its bonnet. At rest
- * the car carries the bright edge. When the pointer comes over the road the
- * bright edge goes to the cone, the hazard marked, and the smoke breathes:
+ * on the road behind it, one small cloud of smoke over its bonnet. The cone
+ * carries the bright edge, at rest and under the pointer: it is the mark of
+ * the hazard, and it stands clear of the car. When the pointer comes over the
+ * road the smoke breathes:
  * puff after puff starts small on the bonnet, grows as it rises and drifts
  * aside, dims and is gone. Let go, the smoke runs on to its rest and stops.
  * The slider is the smoke's period, in seconds.
@@ -59,7 +60,7 @@ function mount({ stage, svg, read }, value) {
   const [x, y] = CONE, ringOf = (r) => circ(r, 24).map((q) => ({ ...q, u: q.u + x, v: q.v + y }));
   const coneG = mk("g", {}, g);
   put(solid(coneG), prism(P, front, ...rings(x - CB - 1.6, y - CB - 1.6, x + CB + 1.6, y + CB + 1.6, 2, 0.8), 0, 1.6));
-  const cBody = mk("path", { class: "sil", d: poly(hull(ringAt(P, ringOf(CB), 1.6).concat([P(x, y, CH)]))) }, coneG);
+  mk("path", { class: "sil hi", d: poly(hull(ringAt(P, ringOf(CB), 1.6).concat([P(x, y, CH)]))) }, coneG);
   mk("path", { class: "nf lo", d: open(ringAt(P, run(ringOf(CB * 0.55), front), CH * 0.45)) }, coneG);
 
   // the broken-down car, askew in its lane: a body, a cabin whose top is shorter than its foot, wheels on the side we see
@@ -114,7 +115,6 @@ function mount({ stage, svg, read }, value) {
     if (a === act) return;
     act = a;
     on = !!a;
-    carBody.sil.classList.toggle("hi", !a); carCab.sil.classList.toggle("hi", !a); cBody.classList.toggle("hi", a);
     read.textContent = a ? "marked" : "rest";
     B.wake();
   }
@@ -134,7 +134,7 @@ function mount({ stage, svg, read }, value) {
 
 hairline({
   name: "traffic-incident",
-  means: "A car broken down askew in its lane, a cone behind it: over the road the cone lights and the smoke off its bonnet breathes.",
+  means: "A car broken down askew in its lane, a cone behind it, lit: over the road the smoke off its bonnet breathes.",
   rules: [1, 4, 5, 7],
   range: [3.4, 2.4, 1.6],
   tour: [[160, 150], [230, 185], null],

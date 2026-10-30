@@ -2,10 +2,11 @@
  * Traffic: a two-lane road in a jam, each lane a queue of cars stopped nose
  * to tail, the queues' heads nearest the viewer, the empty road running on
  * behind them. At rest the gaps are uneven, the way a jam stands, and the
- * lead car of the far lane carries the bright edge. When the pointer comes
- * over the road a car drives slowly in over the road's far end in each lane,
- * the near lane's a moment after, and brakes in behind its queue; the far
- * lane's newcomer takes the bright edge: the jam grows. Let go, the jam moves
+ * lead car of the near lane carries the bright edge: the near lane is never
+ * hidden behind the other, so the bright edge is always seen whole. When the
+ * pointer comes over the road a car drives slowly in over the road's far end
+ * in each lane, the far lane's a moment after, and brakes in behind its
+ * queue; the near lane's newcomer takes the bright edge: the jam grows. Let go, the jam moves
  * up: in each lane every car rolls forward one place, the lead first, and the
  * lead drives off the road's near end. Cars are cut at the road's ends, so
  * only what is on the road is drawn, and not at all while that is a sliver.
@@ -26,7 +27,9 @@ const {
 
 const L = 36, WD = 22, LG = 12, PAD = 4, PB = 4, Z0 = 3, ZB = 14, ZC = 26, WR = 6;
 // the lanes, far then near: where each starts across the road, its queue, and how long its newcomer waits
-const LANES = [{ y0: 0, queue: [26, 85], wait: 0 }, { y0: WD + LG, queue: [0, 50], wait: 450 }];
+const LANES = [{ y0: 0, queue: [26, 85], wait: 450 }, { y0: WD + LG, queue: [0, 50], wait: 0 }];
+// the lit lane: the near one, which nothing stands in front of
+const LIT = 1;
 const RX0 = -110, RX1 = 85 + L + PAD, EDGE = RX0 + 3, HOME = EDGE - L - 1, ROLL = 2400, STEP = 90, SLIVER = 14;
 const NEAR = RX1 - 3, GONE = NEAR + 4, YW = 2 * WD + LG;
 
@@ -82,7 +85,7 @@ function mount({ stage, svg, read }, value) {
 
   /** Lights one car, lane li's car i, or none. */
   const paint = (li, i) => lanes.forEach((ln, l) => ln.cars.forEach((car, k) => { const on = l === li && k === i; car.b.sil.classList.toggle("hi", on); car.c.sil.classList.toggle("hi", on); }));
-  const restLit = () => paint(0, lanes[0].cars.length - 1);
+  const restLit = () => paint(LIT, lanes[LIT].cars.length - 1);
 
   /** A lane's move-up has landed: the car gone off the near end goes round to wait behind the far end. */
   function relabel(ln) {
@@ -122,9 +125,9 @@ function mount({ stage, svg, read }, value) {
     lanes.forEach((ln) => { if (ln.moving) relabel(ln); });
     const now = performance.now();
     if (a) {
-      // arriving: a newcomer rolls slowly in over the far end in each lane, the near lane's a moment later
+      // arriving: a newcomer rolls slowly in over the far end in each lane, the far lane's a moment later
       lanes.forEach((ln) => { const car = ln.cars[0]; car.x = tween(tval(car.x, now), ROLL); tset(car.x, ln.queue[0] - L - gap, now, ln.wait); });
-      paint(0, 0);
+      paint(LIT, 0);
     } else {
       // let go: in each lane that has a newcomer on the road, everyone moves up a place, the lead first,
       // and the lead drives off the near end
@@ -135,7 +138,7 @@ function mount({ stage, svg, read }, value) {
         const n = ln.cars.length, to = [...ln.queue, GONE];
         ln.cars.forEach((car, i) => { car.x = tween(tval(car.x, now)); tset(car.x, to[i], now, (n - 1 - i) * STEP); });
       });
-      if (any) paint(0, lanes[0].cars.length - 2); else restLit();
+      if (any) paint(LIT, lanes[LIT].cars.length - 2); else restLit();
     }
     read.textContent = a ? "jam" : "rest";
     B.wake();
