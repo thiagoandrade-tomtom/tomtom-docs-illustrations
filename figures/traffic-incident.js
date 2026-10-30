@@ -1,22 +1,20 @@
 /**
  * Traffic incident: a short stretch of two-lane road, its lanes split by a
- * dashed line, and in the near lane a car broken down askew, one small cloud
- * of smoke over its bonnet. At rest the car carries the bright edge. When the
- * pointer comes over the road a traffic cone appears behind the car from the
- * top down: its tip first, then its body widening down to its foot on the
- * road, and it takes the bright edge: the hazard is marked. Meanwhile the
- * smoke breathes: puff after puff starts small on the bonnet, grows as it
- * rises and drifts aside, dims and is gone. Let go, the cone goes from the
- * foot up and the smoke runs on to its rest and stops. The slider is the
- * smoke's period, in seconds.
+ * dashed line, and in the near lane a car broken down askew, a traffic cone
+ * on the road behind it, one small cloud of smoke over its bonnet. At rest
+ * the car carries the bright edge. When the pointer comes over the road the
+ * bright edge goes to the cone, the hazard marked, and the smoke breathes:
+ * puff after puff starts small on the bonnet, grows as it rises and drifts
+ * aside, dims and is gone. Let go, the smoke runs on to its rest and stops.
+ * The slider is the smoke's period, in seconds.
  *
- * The pattern: a reveal on a tween, and a gentle ambient loop that runs only
- * under the pointer, through register, like the fleet's sonar. The hit test
+ * The pattern: a gentle ambient loop that runs only under the pointer,
+ * through register, like the fleet's sonar. The hit test
  * is the road's rest box on its plane, which never moves.
  */
 const {
   Cam, circ, clamp, facing, fit, hull, open, poly, prism, proj, ringAt, rings, rrect, run, unproj,
-  tdone, tset, tval, tween, disposer, mk, pointer, put, register, solid,
+  disposer, mk, pointer, put, register, solid,
 } = HL;
 
 const RX0 = -78, RX1 = 78, LW = 22, PAD = 4, PB = 4;
@@ -57,20 +55,12 @@ function mount({ stage, svg, read }, value) {
   put(solid(g), prism(P, front, ...rings(RX0, -PAD, RX1, 2 * LW + PAD, 8, 2), -PB, 0));
   mk("path", { class: "dash nf", d: open([P(RX0 + 6, LW, 0), P(RX1 - 6, LW, 0)]) }, g);
 
-  // the cone, behind the car: a body tapering to its tip, a band round it, a square foot; shown from the tip down to k
-  const coneG = mk("g", {}, g), cFoot = solid(coneG), cBody = mk("path", { class: "sil" }, coneG), cBand = mk("path", { class: "nf lo" }, coneG);
-  let coneDrawn = NaN;
-  function drawCone(k) {
-    if (k === coneDrawn) return;
-    coneDrawn = k;
-    const [x, y] = CONE, at = (r) => circ(r, 24).map((q) => ({ ...q, u: q.u + x, v: q.v + y }));
-    if (k < 0.03) { put(cFoot, { sil: "", crease: "" }); cBody.setAttribute("d", ""); cBand.setAttribute("d", ""); return; }
-    // the body down to height h, its cross-section there the cone's own at that height
-    const h = CH - (CH - 1.6) * k, r = (CB * (CH - h)) / (CH - 1.6);
-    cBody.setAttribute("d", poly(hull(ringAt(P, at(Math.max(r, 0.4)), h).concat([P(x, y, CH)]))));
-    cBand.setAttribute("d", h < CH * 0.45 ? open(ringAt(P, run(at(CB * 0.55), front), CH * 0.45)) : "");
-    put(cFoot, k > 0.96 ? prism(P, front, ...rings(x - CB - 1.6, y - CB - 1.6, x + CB + 1.6, y + CB + 1.6, 2, 0.8), 0, 1.6) : { sil: "", crease: "" });
-  }
+  // the cone, behind the car: a square foot, a body tapering to its tip, a band round it
+  const [x, y] = CONE, ringOf = (r) => circ(r, 24).map((q) => ({ ...q, u: q.u + x, v: q.v + y }));
+  const coneG = mk("g", {}, g);
+  put(solid(coneG), prism(P, front, ...rings(x - CB - 1.6, y - CB - 1.6, x + CB + 1.6, y + CB + 1.6, 2, 0.8), 0, 1.6));
+  const cBody = mk("path", { class: "sil", d: poly(hull(ringAt(P, ringOf(CB), 1.6).concat([P(x, y, CH)]))) }, coneG);
+  mk("path", { class: "nf lo", d: open(ringAt(P, run(ringOf(CB * 0.55), front), CH * 0.45)) }, coneG);
 
   // the broken-down car, askew in its lane: a body, a cabin whose top is shorter than its foot, wheels on the side we see
   const pl = (ring) => place2(ring, cx, cy, th);
@@ -105,11 +95,9 @@ function mount({ stage, svg, read }, value) {
     });
   }
 
-  const reveal = tween(0);
   let on = false;
-  const B = register(stage, (dt, now) => {
-    drawCone(tval(reveal, now));
-    let moving = !tdone(reveal, now);
+  const B = register(stage, (dt) => {
+    let moving = false;
     if (on && !HL.reducedMotion()) { ph = (ph + dt / period) % 1; moving = true; }
     else {
       // run on to the rest phase, then hold: the still frame keeps one puff mid-way
@@ -125,9 +113,7 @@ function mount({ stage, svg, read }, value) {
   function setActive(a) {
     if (a === act) return;
     act = a;
-    const now = performance.now();
     on = !!a;
-    tset(reveal, a ? 1 : 0, now, 0);
     carBody.sil.classList.toggle("hi", !a); carCab.sil.classList.toggle("hi", !a); cBody.classList.toggle("hi", a);
     read.textContent = a ? "marked" : "rest";
     B.wake();
@@ -148,7 +134,7 @@ function mount({ stage, svg, read }, value) {
 
 hairline({
   name: "traffic-incident",
-  means: "A car broken down askew in its lane, smoke off its bonnet: over the road a cone appears behind it, top down.",
+  means: "A car broken down askew in its lane, a cone behind it: over the road the cone lights and the smoke off its bonnet breathes.",
   rules: [1, 4, 5, 7],
   range: [3.4, 2.4, 1.6],
   tour: [[160, 150], [230, 185], null],
