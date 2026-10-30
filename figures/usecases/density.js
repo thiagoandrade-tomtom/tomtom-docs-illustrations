@@ -61,8 +61,9 @@ function mount({ stage, svg, read }, value) {
     const z = RISE * (m + 1) / 2, r = sizeOf(f.b, m);
     const pw = (t, s, d) => P(f.x + (t + d) / Math.SQRT2, f.y + (d - t) / Math.SQRT2, z + s);
     put(f.el, { sil: poly(upper.map((p) => pw(p[0] * r, p[1] * r, -TH)).concat(lower.map((p) => pw(p[0] * r, p[1] * r, 0)))), crease: open(upper.map((p) => pw(p[0] * r, p[1] * r, 0))) });
-    const w = 0.56 * r, D = 0.46 * r, sm = 0.62 * r, mouth = [];
-    for (let i = 0; i <= 10; i++) { const t = -w + (2 * w * i) / 10; mouth.push(pw(t, sm + m * D * ((t / w) ** 2 - 0.5), 0)); }
+    // the mouth: a shallow arc, its corners up for a smile and down for a frown, flat when so-so
+    const w = 0.4 * r, D = 0.16 * r, sm = 0.6 * r, mouth = [];
+    for (let i = 0; i <= 16; i++) { const u = -1 + (2 * i) / 16; mouth.push(pw(u * w, sm + m * D * (0.5 - Math.cos((u * Math.PI) / 2)), 0)); }
     f.mouth.setAttribute("d", open(mouth));
     const er = r2(Math.max(2.6, 3.2 * r / R) * C.S);
     f.eyes.forEach((e, i) => { e.setAttribute("rx", er); e.setAttribute("ry", er); place(e, pw((i ? 0.36 : -0.36) * r, 1.3 * r, 0)); });

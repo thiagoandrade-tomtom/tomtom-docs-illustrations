@@ -19,7 +19,7 @@
   {"slug": "usecases/package", "name": "Doorstep", "for": "Package tracker", "alt": "A parcel on the path to a front door."},
   {"slug": "usecases/route", "name": "Two Roads", "for": "Plan a route", "alt": "Two roads from a start point to a destination pin, one raised."},
   {"slug": "usecases/sharing", "name": "Shared Bay", "for": "Shared mobility", "alt": "A small car and a bike parked nose to tail in a shared bay."},
-  {"slug": "usecases/fleet", "name": "Geofence", "for": "Track your fleet", "alt": "A van inside its geofence, with sonar rings around it."},
+  {"slug": "usecases/fleet", "name": "Geofence", "for": "Track your fleet", "alt": "A delivery truck inside its geofence, with sonar rings around it."},
   {"slug": "usecases/density", "name": "Neighbourhood Moods", "for": "Vibe density", "alt": "Faces over a round district, one per neighbourhood."},
   {"slug": "usecases/traffic", "name": "Pull Out", "for": "City live traffic", "alt": "A queue of cars nose to tail on a short road."}
 ]
