@@ -1,6 +1,6 @@
 [
   {"slug": "map-layers", "name": "Layer Stack", "for": "Map layers", "alt": "Three map sheets stacked above one another: a field of data points, the road network, and the finished map with a river, a park and a route between two pins."},
-  {"slug": "traffic", "name": "Rush Hour", "for": "Traffic", "alt": "Three cars stopped in a queue on a road, with empty road behind them."},
+  {"slug": "traffic", "name": "Rush Hour", "for": "Traffic", "alt": "A two-lane road in a jam: two cars stopped nose to tail in each lane, the road empty behind them."},
   {"slug": "traffic-incident", "name": "Hazard Ahead", "for": "Traffic incidents", "alt": "A car broken down askew in its lane on a two-lane road, a traffic cone behind it and smoke rising off its bonnet."},
   {"slug": "search", "name": "Lens and Pin", "for": "Search", "alt": "A magnifying glass held over a street map, with a map pin rising up through the lens."},
   {"slug": "map-data", "name": "Live Streets", "for": "Map Data", "alt": "A map tile with a connected network of roads, low buildings, and traffic dashes on the main road."},
