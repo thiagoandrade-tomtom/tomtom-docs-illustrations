@@ -286,7 +286,8 @@ async function restSVG(slug, theme) {
 
 /* ---------- page theme ---------- */
 let pageTheme = "light";
-try { pageTheme = localStorage.getItem("docs-ill-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"); } catch {}
+// light unless the viewer picked dark here before
+try { pageTheme = localStorage.getItem("docs-ill-theme") || "light"; } catch {}
 function setPageTheme(t) {
   pageTheme = t;
   document.documentElement.dataset.theme = t;
