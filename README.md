@@ -12,7 +12,7 @@ static SVG in TomTom Docs and the CMS.
 figures/<slug>.js     the figure, in the skill's format (reads HL, ends with hairline({...}))
 figures/usecases/     copies of the use-case thumbnails from tomtom-orbis-usecases-library;
                       that repo keeps its own, and a change there is copied here by hand.
-                      fleet (the truck's shape) and density (a subtler smile) are touched up here
+                      fleet (the truck's shape) and density (a subtler smile, a map base) are touched up here
 figures/index.json    the list: slug, the illustration's own name, what it is for, alt text
 svg/<slug>.svg        the rest pose, light theme, colours inlined, 400 × 320
 index.html            the gallery: a grid of every figure; open one for a large animated view, light/dark,
