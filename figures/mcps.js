@@ -1,140 +1,153 @@
 /**
- * MCPs: a plug and a wall socket. The socket is a square plate standing on
- * the ground, a round recess in its face with two holes in it. The plug is a
- * round body with two prongs in front and a cable out of its back that runs
- * down to the floor. The pointer pulls the plug along its axis: away, it
- * backs off; near the socket, within the snap, it slides home. When it lands
- * a spark bursts round the joint and the socket's recess takes the bright
- * edge: connected. At rest the plug waits a little way out, bright. The
- * slider is the snap, how near the plug must come before it slides in.
+ * MCPs: a globe with services all round it, and the AI spark beside it, a
+ * large star and a small one. The
+ * globe is its outline, an equator and lines of latitude and longitude, only
+ * their near halves drawn; nine services sit on it as dots, the ones on the
+ * far side hidden. The pointer's place across the globe turns it, on a
+ * spring; the service that comes round to face the viewer becomes the hub,
+ * the spark twinkles, and arcs leap from the hub over the surface to the
+ * other services in view, the nearest first, each one blinking as its link
+ * lands. At rest the globe sits turned, its hub's links drawn and bright.
+ * The slider is the stagger between links, in ms.
  *
- * The pattern: one position on a spring, and a state when it lands. The
- * target is read from the pointer on a fixed plane, never from the plug.
+ * The pattern: a position on a spring, and a choice read from its target,
+ * never from where the globe is drawn.
  */
 const {
-  Cam, circ, clamp, fit, hull, open, poly, proj, rings, unproj,
-  spring, stepS, tdone, tset, tval, tween, disposer, mk, pointer, put, register, solid,
+  Cam, clamp, fillet, fit, open, poly, proj, unproj, spring, stepS,
+  tdone, tset, tval, tween, disposer, mk, place, pointer, register,
 } = HL;
 
-const FX = -36, AZ = 38, BR = 15, BL = 30, NR = 7, NL = 9, PR = 2.4, PL = 15, PY = 8;
-const T_IN = FX, T_OUT = 34, T_REST = 6, END = [96, 64, 0], RAYS = 8;
+const R = 60, LIFT = 0.24, DOT = 3.2, VIS = 0.18, TURN = 1.7;
+// the services: longitude and latitude on the globe
+const SV = [[0, 0.3], [0.7, -0.25], [1.4, 0.5], [2.1, -0.1], [2.8, 0.38], [3.5, -0.42], [4.2, 0.12], [4.9, -0.3], [5.6, 0.48]];
+const REST = 0.66;
+
+const add = (a, b, k = 1) => a.map((v, i) => v + b[i] * k);
+const unit = (a) => { const l = Math.hypot(...a); return a.map((v) => v / l); };
+const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const sph = (lon, lat) => [Math.cos(lat) * Math.cos(lon), Math.cos(lat) * Math.sin(lon), Math.sin(lat)];
+
+/** A four-pointed star, an astroid, of radius r turned by th, its tips rounded: (x, y) points. */
+const star = (r, th) => fillet(Array.from({ length: 48 }, (_, k) => {
+  const u = (k / 48) * Math.PI * 2, x = r * Math.cos(u) ** 3, y = r * Math.sin(u) ** 3;
+  return [x * Math.cos(th) - y * Math.sin(th), x * Math.sin(th) + y * Math.cos(th)];
+}), Array(48).fill(0.5), 2);
 
 function mount({ stage, svg, read }, value) {
   const bag = disposer();
-  let snap = value;
-  const C = Cam(45, 0.5, 1.75);
-  fit(C, [[-50, -38, 0], [-50, 38, 0], [FX, 38, 0], [-50, -38, 78], [T_OUT + BL + NL, BR, AZ + BR], END, [FX, -40, AZ + 30]], 200, 166);
-  const P = proj(C);
-  /** A point of the plane x, (y across, z up) in it. */
-  const at = (x) => (q) => P(x, q[0], q[1]);
-  const disc = (r, cy = 0, n = 40) => circ(r, n).map((q) => [cy + q.u, AZ + q.v]);
+  let stag = value;
+  const C = Cam(45, 0.5, 1.7);
+  // the line of sight, and two directions across the screen: the plane the spark stands in
+  const [x0, y0] = unproj(C, 200, 160, 0), [x1, y1] = unproj(C, 200, 160, 1);
+  const v = unit([x1 - x0, y1 - y0, 1]), e1 = unit(cross([0, 0, 1], v)), e2 = cross(v, e1);
+  const rim = Array.from({ length: 72 }, (_, k) => { const t = (k / 72) * Math.PI * 2; return add(e1.map((c) => c * Math.cos(t) * R), e2, Math.sin(t) * R); });
+  const SC = add(e1.map((c) => -c * R * 1.02), e2, R * 0.92);
+  fit(C, rim.map((p) => p.map((c) => c * (1 + LIFT))).concat([add(SC, e1, -28), add(SC, e2, 16), add(SC, e2, -24)]), 210, 170);
+  const P = proj(C), on = (u, r = R) => P(...u.map((c) => c * r));
+
+  /** The near half of a circle of the globe: runs of samples facing the viewer, as open paths. */
+  const near = (pts) => {
+    let d = "", run = [];
+    pts.forEach((u) => { if (dot3(u, v) > 0.02) run.push(on(u)); else { if (run.length > 1) d += open(run); run = []; } });
+    return d + (run.length > 1 ? open(run) : "");
+  };
+  const ring = (f, n = 96) => Array.from({ length: n + 1 }, (_, k) => f((k / n) * Math.PI * 2));
 
   const g = mk("g", {}, svg);
-  // the socket: a plate standing on the ground, its face at x = FX, a recess and two holes in it
-  const plate = solid(g);
-  const face = (r, cls) => mk("path", { class: cls, d: poly(disc(r).map(at(FX))) }, g);
-  {
-    // the plate stands on its edge: its outline in the y–z plane, extruded along x
-    const [sq, inset] = rings(-38, 0, 38, 76, 10, 2);
-    const back = sq.map((q) => P(-50, q.u, q.v)), fr = sq.map((q) => P(FX, q.u, q.v));
-    put(plate, { sil: poly(hull(back.concat(fr))), crease: poly(inset.map((q) => P(FX, q.u, q.v))) });
-  }
-  const recess = face(23, "nf sil"), recessIn = face(20.5, "nf lo");
-  for (const y of [-PY, PY]) mk("path", { class: "nf", d: poly(disc(3.2, y, 20).map(at(FX))) }, g);
+  mk("path", { class: "sil", d: poly(rim.map((p) => P(...p))) }, g);
+  mk("path", { class: "nf lo", d: [-0.75, -0.4, 0.4, 0.75].map((l) => near(ring((t) => sph(t, l)))).join("") }, g);
+  const merids = mk("path", { class: "nf lo" }, g);
+  mk("path", { class: "nf", d: near(ring((t) => sph(t, 0))) }, g);
+  const arcs = SV.map(() => mk("path", { class: "nf hi" }, g));
+  const dots = SV.map(() => ({ el: mk("circle", { r: DOT, class: "dot m" }, g), p: tween(1), landed: true }));
+  // the sparks: offset from SC across the screen (e1 runs left, e2 up), size, and which way they swell
+  const SPARKS = [[0, 0, 13, 1], [-19, -15, 6, -1]];
+  const sparks = SPARKS.map(() => [mk("path", { class: "lo" }, g), mk("path", { class: "sil" }, g)]);
+  let spin = tween(0);
 
-  const rays = mk("path", { class: "nf hi" }, g);
-  const prongs = [-PY, PY].map(() => mk("path", { class: "sil" }, g));
-  const cable = mk("path", { class: "nf sil" }, g);
-  const body = mk("path", { class: "sil" }, g), cap = mk("path", { class: "nf" }, g);
-  const neck = mk("path", { class: "sil" }, g), neckCap = mk("path", { class: "nf lo" }, g);
+  const at = (i, rho) => sph(SV[i][0] + rho, SV[i][1]);
+  const seen = (i, rho) => dot3(at(i, rho), v) > VIS;
+  /** The service most squarely facing the viewer with the globe turned to rho. */
+  const facing = (rho) => SV.reduce((b, _, i) => (dot3(at(i, rho), v) > dot3(at(b, rho), v) ? i : b), 0);
 
-  /** A round solid lying along x from x0 to x1, radius r on the axis: its silhouette and its back cap. */
-  const lying = (x0, x1, r, y = 0) => {
-    const ring = disc(r, y, 32);
-    return { sil: poly(hull(ring.map(at(x0)).concat(ring.map(at(x1))))), back: ring.map(at(x1)) };
+  /** The arc from a to b, drawn to share k: over the surface, lifted in the middle. */
+  const arc = (ua, ub, k) => {
+    const om = Math.acos(clamp(dot3(ua, ub), -1, 1)), pts = [];
+    for (let i = 0; i <= 28; i++) {
+      const t = (i / 28) * k, w0 = Math.sin((1 - t) * om) / Math.sin(om), w1 = Math.sin(t * om) / Math.sin(om);
+      pts.push(on(add(ua.map((c) => c * w0), ub, w1), R * (1 + LIFT * Math.sin(Math.PI * t))));
+    }
+    return open(pts);
   };
 
-  let drawn = NaN;
-  function draw(t) {
-    if (t === drawn) return;
-    drawn = t;
-    // the prongs, only what is still out of the socket
-    [-PY, PY].forEach((y, k) => {
-      const x0 = Math.max(t - PL, FX), on = t - x0 > 0.3;
-      prongs[k].setAttribute("d", on ? lying(x0, t, PR, y).sil : "");
-    });
-    const b = lying(t, t + BL, BR), n = lying(t + BL, t + BL + NL, NR);
-    body.setAttribute("d", b.sil);
-    cap.setAttribute("d", poly(disc(BR - 2, 0, 32).map(at(t + BL))));
-    neck.setAttribute("d", n.sil);
-    neckCap.setAttribute("d", poly(n.back));
-    // the cable: out of the neck, down to a fixed point on the floor
-    const a = [t + BL + NL, 0, AZ], c1 = [t + BL + NL + 26, 0, AZ], c2 = [END[0], END[1] - 46, 0];
-    const pts = [];
-    for (let k = 0; k <= 24; k++) {
-      const s = k / 24, u = 1 - s;
-      pts.push(P(...[0, 1, 2].map((i) => u * u * u * a[i] + 3 * u * u * s * c1[i] + 3 * u * s * s * c2[i] + s * s * s * END[i])));
+  const sp = spring(REST);
+  let hub = facing(REST), links = SV.map((_, j) => tween(j !== hub && seen(j, REST) ? 1 : 0)), drawn = "";
+  const B = register(stage, (dt, now) => {
+    let moving = stepS(sp, dt);
+    const rho = sp.x;
+    const ks = links.map((l) => { if (!tdone(l, now)) moving = true; return tval(l, now); });
+    const sk = tval(spin, now);
+    if (!tdone(spin, now)) moving = true;
+    const key = rho.toFixed(4) + ks.map((k) => k.toFixed(3)).join() + sk.toFixed(3) + dots.map((d) => tval(d.p, now).toFixed(3)).join();
+    if (key !== drawn) {
+      drawn = key;
+      merids.setAttribute("d", [0, 1, 2, 3].map((m) => near(ring((t) => sph(rho + (m * Math.PI) / 4, t)))).join(""));
+      SV.forEach((_, j) => {
+        const u = at(j, rho), vis = dot3(u, v) > VIS, d = dots[j];
+        place(d.el, on(u));
+        // the service blinks as its link lands
+        if (j !== hub && ks[j] >= 1 && !d.landed) { d.landed = true; d.p = tween(0); tset(d.p, 1, now, 0); }
+        const p = tval(d.p, now);
+        d.el.setAttribute("r", vis ? DOT + 2.6 * Math.sin(Math.PI * p) : 0);
+        d.el.setAttribute("class", j === hub || (p > 0 && p < 1) ? "dot" : "dot m");
+        arcs[j].setAttribute("d", j === hub || !vis || !seen(hub, rho) || ks[j] < 0.01 ? "" : arc(at(hub, rho), u, ks[j]));
+      });
+      SPARKS.forEach(([ox, oy, r, way], i) => {
+        const pts = star(r * (1 + way * 0.35 * Math.sin(Math.PI * sk)), (sk * Math.PI) / 2), pt = (x, y, d) => P(...add(add(add(SC, e1, ox + x), e2, oy + y), v, d));
+        sparks[i][0].setAttribute("d", poly(pts.map(([x, y]) => pt(x, y, -3))));
+        sparks[i][1].setAttribute("d", poly(pts.map(([x, y]) => pt(x, y, 0))));
+      });
     }
-    cable.setAttribute("d", open(pts));
-  }
-
-  const spark = tween(0, 420);
-  let sDrawn = NaN;
-  function drawSpark(s) {
-    if (s === sDrawn) return;
-    sDrawn = s;
-    if (s < 0.02) { rays.setAttribute("d", ""); return; }
-    let d = "";
-    for (let k = 0; k < RAYS; k++) {
-      const a = (k / RAYS) * Math.PI * 2 + 0.2, r0 = 26 + 4 * s, r1 = 28 + 12 * s;
-      d += open([[r0 * Math.cos(a), AZ + r0 * Math.sin(a)], [r1 * Math.cos(a), AZ + r1 * Math.sin(a)]].map(at(FX)));
-    }
-    rays.setAttribute("d", d);
-  }
-
-  const sp = spring(T_REST);
-  let home = false;
-  const Bk = register(stage, (dt, now) => {
-    const m = stepS(sp, dt);
-    draw(sp.x);
-    // landing: the spark goes out, then back; leaving puts it out
-    const landed = sp.t === T_IN && Math.abs(sp.x - T_IN) < 0.6;
-    if (landed !== home) {
-      home = landed;
-      recess.classList.toggle("hi", landed);
-      body.classList.toggle("hi", !landed);
-      tset(spark, landed ? 1 : 0, now, 0);
-    }
-    if (home && tdone(spark, now) && tval(spark, now) === 1) tset(spark, 0, now, 0);
-    drawSpark(tval(spark, now));
-    return m || !tdone(spark, now);
+    dots.forEach((d) => { if (!tdone(d.p, now)) moving = true; });
+    return moving;
   });
-  bag.add(Bk.unregister);
-  body.classList.add("hi");
+  bag.add(B.unregister);
 
-  /** The pointer's x on the axis's plane, taken as the middle of the plug's body; inside the snap it slides home. */
+  function setHub(h) {
+    if (h === hub) return;
+    const now = performance.now(), rho = sp.t;
+    hub = h;
+    // the nearest services in view are linked first
+    const order = SV.map((_, j) => j).filter((j) => j !== h && seen(j, rho)).sort((a, b) => dot3(at(b, rho), at(h, rho)) - dot3(at(a, rho), at(h, rho)));
+    links = SV.map(() => tween(0));
+    order.forEach((j, rank) => tset(links[j], 1, now, rank * stag));
+    dots.forEach((d) => { d.landed = false; });
+    spin = tween(0); tset(spin, 1, now, 0);
+  }
+
+  const mid = P(0, 0, 0), rad = Math.hypot(P(...rim[0])[0] - mid[0], P(...rim[0])[1] - mid[1]);
   function aim(p) {
-    if (!p) { sp.t = T_REST; read.textContent = "rest"; Bk.wake(); return; }
-    const [x] = unproj(C, p[0], p[1], AZ);
-    let t = clamp(x - BL / 2, T_IN, T_OUT);
-    if (t - PL - FX < snap) t = T_IN;
-    sp.t = t;
-    read.textContent = t === T_IN ? "connected" : `gap ${Math.round(t - PL - FX)}`;
-    Bk.wake();
+    const inside = p && Math.hypot(p[0] - mid[0], p[1] - mid[1]) < rad + 14;
+    sp.t = inside ? REST + clamp((p[0] - mid[0]) / rad, -1, 1) * TURN : REST;
+    setHub(facing(sp.t));
+    read.textContent = inside ? `service ${hub + 1}` : "rest";
+    B.wake();
   }
   aim(null);
 
   bag.add(pointer(stage, { move: aim, leave: () => aim(null) }));
   bag.add(() => svg.replaceChildren());
 
-  return { set: (v) => { snap = clamp(v, 4, 30); }, destroy: bag.dispose };
+  return { set: (s) => { stag = clamp(s, 40, 260); }, destroy: bag.dispose };
 }
 
 hairline({
   name: "mcps",
-  means: "A plug and a wall socket: the pointer draws the plug along; near the socket it slides home and a spark marks the connection.",
-  rules: [1, 4, 5, 8],
-  range: [6, 16, 26],
-  tour: [[300, 190], [250, 160], [193, 132], null],
+  means: "A globe of services with the AI spark beside it: the pointer turns it, and links leap from the service facing you.",
+  rules: [1, 2, 4, 5],
+  range: [60, 120, 200],
+  tour: [[120, 170], [290, 170], [205, 170], null],
   mount,
 });

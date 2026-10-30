@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs Illustrations</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3a9 9 0 0 0-9 9c0 7 9 17 9 17s9-10 9-17a9 9 0 0 0-9-9z' fill='none' stroke='%231988CF' stroke-width='2'/%3E%3Ccircle cx='16' cy='12' r='3' fill='%231988CF'/%3E%3C/svg%3E">
+<style>
+  /* Two surfaces, light and dark. A figure stands loose on its surface: its
+     plates take the surface colour (--ground), edge/mid/lo are the blue mixed
+     into it, and the bright stroke goes a step lighter on dark. */
+  :root {
+    --page: #F5F6F8; --card: #FFFFFF; --text: #1B1C1F; --muted: #6B6F76; --rule: #E4E6EA;
+    --ground: #FFFFFF; --bright: #1988CF; --chip: #EEF0F3; --scrim: rgba(17, 19, 23, .45);
+  }
+  [data-theme="dark"] {
+    --page: #0B0D10; --card: #14171C; --text: #E9EBEE; --muted: #8A8F98; --rule: #242830;
+    --ground: #14171C; --bright: #6CC0F5; --chip: #1C2027; --scrim: rgba(0, 0, 0, .6);
+  }
+  .surface-light { --ground: #FFFFFF; --bright: #1988CF; }
+  .surface-dark { --ground: #14171C; --bright: #6CC0F5; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  button { font: inherit; color: inherit; }
+
+  header { max-width: 1200px; margin: 0 auto; padding: 32px 24px 8px; display: flex; gap: 16px; align-items: end; justify-content: space-between; flex-wrap: wrap; }
+  h1 { margin: 0 0 4px; font-size: 20px; letter-spacing: -.01em; }
+  header p { margin: 0; color: var(--muted); }
+
+  .seg { display: inline-flex; background: var(--chip); border-radius: 8px; padding: 2px; gap: 2px; }
+  .seg button { border: 0; background: transparent; padding: 5px 11px; border-radius: 6px; cursor: pointer; color: var(--muted); font-size: 13px; }
+  .seg button[aria-pressed="true"] { background: var(--card); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .seg button:focus-visible, .btn:focus-visible, .card:focus-visible, .icon:focus-visible { outline: 2px solid var(--bright); outline-offset: 2px; }
+
+  main { max-width: 1200px; margin: 0 auto; padding: 8px 24px 48px; }
+  main { --min: 230px; --gap: 16px; }
+  main[data-density="compact"] { --min: 160px; --gap: 12px; }
+  main[data-density="large"] { --min: 320px; --gap: 20px; }
+  main h2 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 56px 0 14px; padding-top: 20px; border-top: 1px solid var(--rule); }
+  main h2:first-child { margin-top: 16px; padding-top: 0; border-top: 0; }
+  main h2 span { font-weight: 400; margin-left: 6px; }
+  .grid { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fill, minmax(var(--min), 1fr)); }
+  /* All: one grid of every card, the groups' headings gone */
+  main[data-group="all"] { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fill, minmax(var(--min), 1fr)); padding-top: 16px; }
+  main[data-group="all"] h2 { display: none; }
+  main[data-group="all"] .grid { display: contents; }
+  main[data-density="compact"] .card .slug { display: none; }
+  .tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .tools .lbl { font-size: 12px; color: var(--muted); margin-right: -4px; }
+  .card { background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 8px 8px 12px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 8px; transition: border-color .2s; }
+  .card:hover { border-color: color-mix(in srgb, var(--bright) 45%, var(--rule)); }
+  .card .name { padding: 0 6px; font-weight: 600; }
+  .card .slug { padding: 0 6px; color: var(--muted); font: 12px ui-monospace, monospace; }
+  .thumb { background: var(--ground); border-radius: 8px; }
+
+  .hl-stage {
+    --hairline-plate: var(--ground);
+    --hairline-hi: var(--bright);
+    --hairline-edge: color-mix(in srgb, #1988CF 88%, var(--ground));
+    --hairline-mid: color-mix(in srgb, #1988CF 62%, var(--ground));
+    --hairline-lo: color-mix(in srgb, #1988CF 38%, var(--ground));
+    --hairline-stroke: 1.1;
+    pointer-events: none;
+  }
+
+  dialog { border: 0; padding: 0; background: transparent; max-width: min(960px, calc(100vw - 32px)); width: 100%; color: var(--text); }
+  dialog::backdrop { background: var(--scrim); }
+  .sheet { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) 300px; }
+  .view { background: var(--ground); display: grid; place-items: center; padding: 24px; min-height: 420px; position: relative; transition: background .2s; }
+  #m-stage { width: 100%; display: grid; place-items: center; }
+  .view .hl-stage, .view .static { width: min(100%, 560px); }
+  .view .static svg { width: 100%; height: auto; display: block; }
+  .side { padding: 20px; display: flex; flex-direction: column; gap: 16px; border-left: 1px solid var(--rule); }
+  .side h2 { margin: 0; font-size: 18px; }
+  .side .slug { color: var(--muted); font: 12px ui-monospace, monospace; }
+  .side .alt { color: var(--muted); font-size: 13px; }
+  .row { display: flex; flex-direction: column; gap: 6px; }
+  .row label { font-size: 12px; color: var(--muted); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .btn { border: 1px solid var(--rule); background: var(--card); border-radius: 8px; padding: 8px 10px; cursor: pointer; font-size: 13px; text-align: center; }
+  .btn:hover { border-color: var(--muted); }
+  .btn.primary { background: var(--text); color: var(--card); border-color: var(--text); }
+  .top { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; }
+  .icon { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--rule); background: var(--card); cursor: pointer; display: grid; place-items: center; }
+  .toast { position: fixed; left: 50%; bottom: 24px; translate: -50% 0; background: var(--text); color: var(--card); padding: 8px 14px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 10; }
+  .toast.on { opacity: 1; }
+  .offstage { position: fixed; left: -10000px; top: 0; width: 400px; }
+
+  @media (max-width: 760px) {
+    .sheet { grid-template-columns: 1fr; }
+    .side { border-left: 0; border-top: 1px solid var(--rule); }
+    .view { min-height: 260px; padding: 16px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>TomTom Docs illustrations</h1>
+    <p>Hover a card to play its story. Open one to see it large, switch light and dark, and copy or download the SVG.</p>
+  </div>
+  <div class="tools">
+    <span class="lbl">Size</span>
+    <div class="seg" role="group" aria-label="Card size">
+      <button type="button" data-density="compact">S</button>
+      <button type="button" data-density="comfortable">M</button>
+      <button type="button" data-density="large">L</button>
+    </div>
+    <span class="lbl">Show</span>
+    <div class="seg" role="group" aria-label="Grouping">
+      <button type="button" data-group="grouped">By group</button>
+      <button type="button" data-group="all">All</button>
+    </div>
+    <div class="seg" role="group" aria-label="Page theme">
+      <button type="button" data-page-theme="light" aria-pressed="true">Light</button>
+      <button type="button" data-page-theme="dark" aria-pressed="false">Dark</button>
+    </div>
+  </div>
+</header>
+<main id="grid"></main>
+
+<dialog id="modal" aria-labelledby="m-title">
+  <div class="sheet">
+    <div class="view" id="m-view">
+      <div class="top">
+        <button class="icon" type="button" id="m-prev" aria-label="Previous">‹</button>
+        <button class="icon" type="button" id="m-next" aria-label="Next">›</button>
+        <button class="icon" type="button" id="m-close" aria-label="Close">✕</button>
+      </div>
+      <div id="m-stage"></div>
+    </div>
+    <div class="side">
+      <div>
+        <h2 id="m-title"></h2>
+        <div class="slug" id="m-slug"></div>
+      </div>
+      <div class="alt" id="m-alt"></div>
+      <div class="row">
+        <label>Theme</label>
+        <div class="seg" role="group" aria-label="Figure theme">
+          <button type="button" data-theme-set="light">Light</button>
+          <button type="button" data-theme-set="dark">Dark</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>View</label>
+        <div class="seg" role="group" aria-label="View">
+          <button type="button" data-view-set="live">Animated</button>
+          <button type="button" data-view-set="static">Static SVG</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>Export (current theme)</label>
+        <div class="actions">
+          <button class="btn primary" type="button" data-act="copy-svg">Copy SVG</button>
+          <button class="btn" type="button" data-act="download-svg">Download SVG</button>
+          <button class="btn" type="button" data-act="download-png">Download PNG</button>
+          <button class="btn" type="button" data-act="copy-alt">Copy alt text</button>
+          <button class="btn" type="button" data-act="copy-link" style="grid-column: 1 / -1">Copy link to this view</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="offstage" id="offstage" aria-hidden="true"></div>
+
+<script src="lib/kernel.js"></script>
+<script>
+/* Every figure is in the hairline-create skill's format: it reads `HL` and
+   ends with `hairline({...})`. Each is run in its own function scope, so the
+   figures' top-level names never meet. */
+const TRAVEL = 650, DWELL = 900, GAP = 700;
+const ease = (t) => 1 - Math.pow(1 - t, 3);
+const SURFACE = { light: "#FFFFFF", dark: "#14171C" }, BRIGHT = { light: "#1988CF", dark: "#6CC0F5" };
+const FIGS = new Map();
+const clamp01 = (v) => Math.min(1, Math.max(0, v));
+let INDEX = [];
+
+/* The stage's own mapping (kernel `pointer`): client px over its rect → 400×320. */
+function emit(stage, type, [x, y]) {
+  const r = stage.getBoundingClientRect();
+  stage.dispatchEvent(new PointerEvent(type, {
+    pointerType: "mouse", pointerId: 1, bubbles: false,
+    clientX: r.left + (x / 400) * r.width, clientY: r.top + (y / 320) * r.height,
+  }));
+}
+
+/* Walks the figure's tour with an unseen pointer, from the first stop, with no lead-in, round and round. */
+function driver(stage, stops) {
+  let raf = 0, from = null, i = 0, t0 = 0, phase = "travel";
+  const step = (now) => {
+    const stop = stops[i];
+    if (phase === "travel") {
+      if (stop === null) { from = null; emit(stage, "pointerleave", [200, 160]); phase = "wait"; t0 = now; }
+      else {
+        const k = from ? ease(Math.min(1, (now - t0) / TRAVEL)) : 1, a = from ?? stop;
+        emit(stage, "pointermove", [a[0] + (stop[0] - a[0]) * k, a[1] + (stop[1] - a[1]) * k]);
+        if (k >= 1) { from = stop; phase = "wait"; t0 = now; }
+      }
+    } else if (now - t0 >= (stop === null ? GAP : DWELL)) { i = (i + 1) % stops.length; phase = "travel"; t0 = now; }
+    raf = requestAnimationFrame(step);
+  };
+  return {
+    start() { if (raf || HL.reducedMotion()) return; i = 0; from = null; phase = "travel"; t0 = performance.now(); raf = requestAnimationFrame(step); },
+    stop() { if (!raf) return; cancelAnimationFrame(raf); raf = 0; from = null; emit(stage, "pointerleave", [200, 160]); },
+  };
+}
+
+/** Mounts figure `fig` into `stage`; returns its tour driver and a destroy. */
+function mountStage(stage, fig) {
+  stage.setAttribute("data-hairline", fig.name);
+  stage.setAttribute("aria-hidden", "true");
+  const svg = HL.mk("svg", { viewBox: "0 0 400 320", "aria-hidden": "true" }, stage);
+  let handle;
+  try { handle = fig.mount({ stage, svg, read: { textContent: "" } }, fig.range[1]); }
+  catch (err) { console.error(`hairline ${fig.name}:`, err); return null; }
+  const drive = driver(stage, fig.tour ?? HL.LAP);
+  return { drive, destroy() { drive.stop(); handle.destroy(); stage.replaceChildren(); } };
+}
+
+/** The figure's rest pose in a theme, as a standalone SVG string: every colour and stroke inlined. */
+async function restSVG(slug, theme) {
+  const fig = FIGS.get(slug), host = document.getElementById("offstage");
+  const stage = document.createElement("div");
+  stage.className = "hl-stage surface-" + theme;
+  host.appendChild(stage);
+  const m = mountStage(stage, fig);
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const live = stage.querySelector("svg"), out = live.cloneNode(true);
+  const PROPS = ["fill", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "stroke-linejoin"];
+  const L = [...live.querySelectorAll("*")], K = [...out.querySelectorAll("*")];
+  L.forEach((el, i) => {
+    const c = K[i], cs = getComputedStyle(el);
+    if (el.tagName === "g") { c.removeAttribute("class"); return; }
+    if (el.getAttribute("d") === "" || el.getAttribute("r") === "0" || (cs.fill === "none" && cs.stroke === "none")) { c.remove(); return; }
+    for (const p of PROPS) {
+      const v = cs.getPropertyValue(p);
+      if (p === "stroke-dasharray" && v === "none") continue;
+      if (p.startsWith("stroke-") && cs.stroke === "none") continue;
+      c.setAttribute(p, p === "stroke-width" ? String(parseFloat(v)) : v);
+    }
+    if (cs.stroke !== "none") c.setAttribute("vector-effect", "non-scaling-stroke");
+    c.removeAttribute("class"); c.removeAttribute("style");
+  });
+  out.querySelectorAll("g").forEach((g) => { if (!g.children.length) g.remove(); });
+  const entry = INDEX.find((e) => e.slug === slug);
+  out.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  out.setAttribute("width", "400"); out.setAttribute("height", "320");
+  out.setAttribute("role", "img"); out.setAttribute("aria-label", entry.alt);
+  out.removeAttribute("aria-hidden");
+  m.destroy(); stage.remove();
+  return out.outerHTML
+    .replace(/-?\d+\.\d{3,}/g, (n) => String(Math.round(parseFloat(n) * 100) / 100))
+    .replace(/rgb\((\d+), (\d+), (\d+)\)/g, (_, r, g, b) => "#" + [r, g, b].map((n) => (+n).toString(16).padStart(2, "0")).join("").toUpperCase())
+    // color-mix() resolves to color(srgb r g b) with 0–1 channels; hex is what every CMS reads
+    .replace(/color\(srgb ([\d.e-]+) ([\d.e-]+) ([\d.e-]+)\)/g, (_, r, g, b) => "#" + [r, g, b].map((n) => Math.round(clamp01(+n) * 255).toString(16).padStart(2, "0")).join("").toUpperCase());
+}
+
+/* ---------- page theme ---------- */
+let pageTheme = "light";
+try { pageTheme = localStorage.getItem("docs-ill-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"); } catch {}
+function setPageTheme(t) {
+  pageTheme = t;
+  document.documentElement.dataset.theme = t;
+  document.querySelectorAll("[data-page-theme]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.pageTheme === t)));
+  try { localStorage.setItem("docs-ill-theme", t); } catch {}
+}
+document.querySelectorAll("[data-page-theme]").forEach((b) => b.addEventListener("click", () => setPageTheme(b.dataset.pageTheme)));
+setPageTheme(pageTheme);
+
+/* ---------- grid size and grouping, remembered per viewer ---------- */
+const prefs = { density: "comfortable", group: "grouped" };
+try { Object.assign(prefs, JSON.parse(localStorage.getItem("docs-ill-grid") || "{}")); } catch {}
+function setPref(k, v) {
+  prefs[k] = v;
+  const main = document.getElementById("grid");
+  main.dataset.density = prefs.density; main.dataset.group = prefs.group;
+  document.querySelectorAll("[data-density]:not(main)").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.density === prefs.density)));
+  document.querySelectorAll("[data-group]:not(main)").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.group === prefs.group)));
+  try { localStorage.setItem("docs-ill-grid", JSON.stringify(prefs)); } catch {}
+}
+document.querySelectorAll("button[data-density]").forEach((b) => b.addEventListener("click", () => setPref("density", b.dataset.density)));
+document.querySelectorAll("button[data-group]").forEach((b) => b.addEventListener("click", () => setPref("group", b.dataset.group)));
+setPref("density", prefs.density);
+
+/* ---------- toast ---------- */
+let toastTimer = 0;
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.classList.add("on");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove("on"), 1600);
+}
+
+/* ---------- modal ---------- */
+const modal = document.getElementById("modal");
+const state = { i: 0, theme: "light", view: "live", live: null };
+/* The open view lives in the address, so a link opens on it: #fig=<slug>&theme=<light|dark>&view=<live|static> */
+function writeHash() {
+  const q = new URLSearchParams({ fig: INDEX[state.i].slug, theme: state.theme, view: state.view });
+  history.replaceState(null, "", "#" + q.toString().replace(/%2F/g, "/"));
+}
+function readHash() {
+  const q = new URLSearchParams(location.hash.slice(1)), i = INDEX.findIndex((e) => e.slug === q.get("fig"));
+  if (i < 0) { if (modal.open) modal.close(); return; }
+  openModal(i, { theme: q.get("theme"), view: q.get("view") });
+}
+async function render() {
+  const { slug, section, alt } = INDEX[state.i];
+  writeHash();
+  document.getElementById("m-title").textContent = section;
+  document.getElementById("m-slug").textContent = `figures/${slug}.js · svg/${slug}.svg`;
+  document.getElementById("m-alt").textContent = alt;
+  document.querySelectorAll("[data-theme-set]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.themeSet === state.theme)));
+  document.querySelectorAll("[data-view-set]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.viewSet === state.view)));
+  const view = document.getElementById("m-view");
+  view.className = "view surface-" + state.theme;
+  state.live?.destroy(); state.live = null;
+  const host = document.getElementById("m-stage");
+  host.replaceChildren();
+  if (state.view === "live") {
+    const stage = document.createElement("div");
+    stage.className = "hl-stage";
+    host.appendChild(stage);
+    state.live = mountStage(stage, FIGS.get(slug));
+    state.live?.drive.start();
+  } else {
+    const box = document.createElement("div");
+    box.className = "static";
+    box.innerHTML = await restSVG(slug, state.theme);
+    host.appendChild(box);
+  }
+}
+function openModal(i, opts = {}) {
+  state.i = i;
+  state.theme = opts.theme === "dark" || opts.theme === "light" ? opts.theme : pageTheme;
+  state.view = opts.view === "static" ? "static" : "live";
+  if (!modal.open) modal.showModal();
+  render();
+}
+modal.addEventListener("close", () => { state.live?.destroy(); state.live = null; history.replaceState(null, "", location.pathname + location.search); });
+addEventListener("hashchange", readHash);
+modal.addEventListener("click", (e) => { if (e.target === modal) modal.close(); });
+document.getElementById("m-close").addEventListener("click", () => modal.close());
+const step = (d) => { state.i = (state.i + d + INDEX.length) % INDEX.length; render(); };
+document.getElementById("m-prev").addEventListener("click", () => step(-1));
+document.getElementById("m-next").addEventListener("click", () => step(1));
+modal.addEventListener("keydown", (e) => { if (e.key === "ArrowLeft") step(-1); if (e.key === "ArrowRight") step(1); });
+document.querySelectorAll("[data-theme-set]").forEach((b) => b.addEventListener("click", () => { state.theme = b.dataset.themeSet; render(); }));
+document.querySelectorAll("[data-view-set]").forEach((b) => b.addEventListener("click", () => { state.view = b.dataset.viewSet; render(); }));
+
+function save(blob, name) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+async function copy(text, what) {
+  try { await navigator.clipboard.writeText(text); toast(`${what} copied`); }
+  catch { toast("Copy is blocked here; use Download instead"); }
+}
+document.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", async () => {
+  const { slug, alt } = INDEX[state.i], name = `${slug.replace("/", "-")}-${state.theme}`;
+  if (b.dataset.act === "copy-alt") return copy(alt, "Alt text");
+  if (b.dataset.act === "copy-link") { writeHash(); return copy(location.href, "Link"); }
+  const svg = await restSVG(slug, state.theme);
+  if (b.dataset.act === "copy-svg") return copy(svg, "SVG");
+  if (b.dataset.act === "download-svg") { save(new Blob([svg], { type: "image/svg+xml" }), name + ".svg"); return toast(`${name}.svg downloaded`); }
+  if (b.dataset.act === "download-png") {
+    // 2× the viewBox, on the theme's surface
+    const img = new Image(), url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
+    img.onload = () => {
+      const c = document.createElement("canvas"); c.width = 800; c.height = 640;
+      const x = c.getContext("2d"); x.fillStyle = SURFACE[state.theme]; x.fillRect(0, 0, 800, 640); x.drawImage(img, 0, 0, 800, 640);
+      URL.revokeObjectURL(url);
+      c.toBlob((blob) => { save(blob, name + ".png"); toast(`${name}.png downloaded`); }, "image/png");
+    };
+    img.src = url;
+  }
+}));
+
+/* ---------- grid ---------- */
+(async () => {
+  HL.inject(document);
+  INDEX = await (await fetch("figures/index.json")).json();
+  const main = document.getElementById("grid"), grids = new Map();
+  for (const [i, { slug, section, group = "Docs" }] of INDEX.entries()) {
+    if (!grids.has(group)) {
+      const h = document.createElement("h2"), grid = document.createElement("div");
+      grid.className = "grid";
+      main.append(h, grid);
+      grids.set(group, { h, grid, n: 0 });
+    }
+    const sec = grids.get(group);
+    sec.h.innerHTML = `${group}<span>${++sec.n}</span>`;
+    const grid = sec.grid;
+    let fig;
+    new Function("HL", "hairline", await (await fetch(`figures/${slug}.js`)).text())(HL, (f) => { fig = f; });
+    FIGS.set(slug, fig);
+    const card = document.createElement("button");
+    card.type = "button"; card.className = "card";
+    card.setAttribute("aria-label", `Open ${section}`);
+    card.innerHTML = `<div class="thumb"><div class="hl-stage"></div></div><span class="name">${section}</span><span class="slug">${slug}</span>`;
+    grid.appendChild(card);
+    const m = mountStage(card.querySelector(".hl-stage"), fig);
+    if (m) {
+      card.addEventListener("pointerenter", () => m.drive.start());
+      card.addEventListener("pointerleave", () => m.drive.stop());
+      card.addEventListener("focus", () => m.drive.start());
+      card.addEventListener("blur", () => m.drive.stop());
+    }
+    card.addEventListener("click", () => openModal(i));
+  }
+  // a link with #fig=… opens on that figure
+  readHash();
+})();
+</script>
+</body>
+</html>

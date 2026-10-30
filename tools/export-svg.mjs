@@ -1,4 +1,5 @@
-/* Writes svg/<slug>.svg for every figure in figures/index.json: the figure's
+/* Writes svg/<slug>.svg for every figure in figures/index.json (a slug may
+   name a subfolder, as usecases/route does): the figure's
    rest pose, light theme, with every colour and stroke inlined so the file
    stands alone in Docs and the CMS. Plates are filled with the page
    background (#FFFFFF), so the figure stands loose on a white page.
@@ -24,7 +25,7 @@ const mix = (p) => "#" + [1, 3, 5].map((i) => {
 }).join("").toUpperCase();
 const PALETTE = { plate: BG, hi: HI, edge: mix(0.88), mid: mix(0.62), lo: mix(0.38) };
 
-const kernel = readFileSync(join(root, ".claude/skills/hairline-create/kernel.js"), "utf8");
+const kernel = readFileSync(join(root, "lib/kernel.js"), "utf8");
 const index = JSON.parse(readFileSync(join(root, "figures/index.json"), "utf8"));
 const only = process.argv.slice(2);
 
@@ -81,6 +82,7 @@ for (const { slug, alt } of index) {
   // Two decimals are plenty at 400 × 320.
   const tidy = svg.replace(/-?\d+\.\d{3,}/g, (n) => String(Math.round(parseFloat(n) * 100) / 100)).replace(/rgb\((\d+), (\d+), (\d+)\)/g,
     (_, r, g, b) => "#" + [r, g, b].map((n) => (+n).toString(16).padStart(2, "0")).join("").toUpperCase());
+  mkdirSync(dirname(join(root, "svg", slug + ".svg")), { recursive: true });
   writeFileSync(join(root, "svg", slug + ".svg"), tidy + "\n");
   console.log(`svg/${slug}.svg  ${(tidy.length / 1024).toFixed(1)} KB`);
 }
