@@ -1,15 +1,17 @@
 /**
  * Traffic incident: a short stretch of two-lane road, its lanes split by a
- * dashed line, and in the near lane a car broken down askew. Behind it stands
- * one traffic cone, bright: the hazard is marked. When the pointer comes over
- * the road two more cones rise from the road behind the first, one after the
- * other, out from the car, and the three make the taper that closes the lane:
- * from the road's edge upstream to the lane line beside the car. Let go, the
- * two sink back, the last one first. The slider is the stagger between cones,
- * in ms.
+ * dashed line, and in the near lane a car broken down askew, a little smoke
+ * rising off its bonnet in two small clouds, carried off to the side. At rest the car carries the bright
+ * edge. When the pointer comes over the road a traffic cone drops the last
+ * little way onto the road behind the car, settles with a small hop, and takes the
+ * bright edge: the hazard is marked. The smoke drifts a little higher. Let
+ * go, the cone lifts off again and is gone. The slider is how high the cone
+ * hops when it lands.
  *
- * The pattern: a few parts on tweens, staggered by distance from the car. The
- * hit test is the road's rest box on its plane, which never moves.
+ * The pattern: one drop on a clock of its own: a fall speeds up, which the
+ * kernel's ease-out cannot give, so the drop is an ease-in over 0.24s and a
+ * hop of 0.16s; lifting off is the reverse. The smoke is a tween. The hit test is
+ * the road's rest box on its plane, which never moves.
  */
 const {
   Cam, circ, clamp, facing, fit, hull, open, poly, prism, proj, ringAt, rings, rrect, run, unproj,
@@ -18,9 +20,23 @@ const {
 
 const RX0 = -78, RX1 = 78, LW = 22, PAD = 4, PB = 4;
 const L = 36, WD = 19, Z0 = 3, ZB = 14, ZC = 26, WR = 6;
-const CAR = [24, LW / 2 + 1, 0.34];
-// the taper, nearest the car first: the first stands at rest, the others rise
-const CONES = [[-8, LW - 3], [-30, LW / 2], [-52, 4]], CB = 5, CH = 17;
+const CAR = [24, LW / 2 + 1, 0.34], CONE = [-14, LW / 2 + 2], CB = 5.5, CH = 19;
+const DROP = 16, FALL = 240, HOP = 160, LIFT = 220;
+// the smoke: two small clouds over the bonnet, (across, up, size), the lower first, each a cluster of round puffs
+const CLOUDS = [[3, 9, 0.75], [10, 21, 1]], PUFFS = [[0, 0, 4], [4.2, 1.6, 3.2], [-3.8, 1.3, 3], [0.6, 3.6, 3]], DRIFT = 4;
+
+/** A cloud's outline in its own plane: the boundary of a cluster of circles (t, s, r), scaled by k, ordered round its middle. */
+function cloud(k) {
+  const pts = [];
+  PUFFS.forEach(([t, s, r], i) => {
+    for (let j = 0; j < 40; j++) {
+      const a = (j / 40) * Math.PI * 2, p = [(t + r * Math.cos(a)) * k, (s + r * Math.sin(a)) * k];
+      if (PUFFS.every(([t2, s2, r2], m) => m === i || Math.hypot(p[0] - t2 * k, p[1] - s2 * k) > r2 * k - 0.05)) pts.push(p);
+    }
+  });
+  const c = [0.3 * k, 1.5 * k];
+  return pts.sort((a, b) => Math.atan2(a[1] - c[1], a[0] - c[0]) - Math.atan2(b[1] - c[1], b[0] - c[0]));
+}
 
 /** A ring of car samples, in the car's frame (u along, v across, the front at +u), turned by th and set down at (x, y). */
 const place2 = (ring, x, y, th) => {
@@ -30,51 +46,74 @@ const place2 = (ring, x, y, th) => {
 
 function mount({ stage, svg, read }, value) {
   const bag = disposer();
-  let stag = value;
+  let hop = value;
   const C = Cam(45, 0.5, 2.15);
-  fit(C, [[RX0, -PAD, -PB], [RX1, 2 * LW + PAD, -PB], [RX1, -PAD, 0], [RX0, 2 * LW + PAD, -PB], [CAR[0], CAR[1], ZC], [CONES[2][0], CONES[2][1], CH]], 200, 166);
+  const H = L / 2, W2 = WD / 2, [cx, cy, th] = CAR, cs = Math.cos(th), sn = Math.sin(th);
+  const bonnet = [cx + (H - 2.5) * cs, cy + (H - 2.5) * sn];
+  fit(C, [[RX0, -PAD, -PB], [RX1, 2 * LW + PAD, -PB], [RX1, -PAD, 0], [RX0, 2 * LW + PAD, -PB], [cx, cy, ZC], [bonnet[0] + 14, bonnet[1] - 14, ZB + CLOUDS[1][1] + DRIFT + 9]], 200, 166);
   const P = proj(C), front = facing(C);
 
   const g = mk("g", {}, svg);
   put(solid(g), prism(P, front, ...rings(RX0, -PAD, RX1, 2 * LW + PAD, 8, 2), -PB, 0));
   mk("path", { class: "dash nf", d: open([P(RX0 + 6, LW, 0), P(RX1 - 6, LW, 0)]) }, g);
 
-  // the cones, far to near, so a nearer one covers a farther: each a square foot, a body tapering to its tip, a band round it
-  const order = CONES.map((_, i) => i).sort((a, b) => CONES[a][0] + CONES[a][1] - CONES[b][0] - CONES[b][1]);
-  const cones = [];
-  for (const i of order) {
-    const grp = mk("g", {}, g);
-    cones[i] = { foot: solid(grp), body: mk("path", { class: "sil" }, grp), band: mk("path", { class: "nf lo" }, grp), k: tween(i === 0 ? 1 : 0), drawn: NaN };
-  }
-  /** Cone i grown to k from its foot. */
-  function drawCone(i, k) {
-    const cn = cones[i];
-    if (k === cn.drawn) return;
-    cn.drawn = k;
-    if (k < 0.04) { put(cn.foot, { sil: "", crease: "" }); cn.body.setAttribute("d", ""); cn.band.setAttribute("d", ""); return; }
-    const [x, y] = CONES[i], at = (r) => circ(r * k, 24).map((q) => ({ ...q, u: q.u + x, v: q.v + y }));
-    const [fr, fi] = rings(x - (CB + 1.5) * k, y - (CB + 1.5) * k, x + (CB + 1.5) * k, y + (CB + 1.5) * k, 2 * k, 0.8 * k);
-    put(cn.foot, prism(P, front, fr, fi, 0, 1.6 * k));
-    cn.body.setAttribute("d", poly(hull(ringAt(P, at(CB), 1.6 * k).concat([P(x, y, CH * k)]))));
-    cn.band.setAttribute("d", open(ringAt(P, run(at(CB * 0.55), front), CH * 0.45 * k)));
+  // the cone, behind the car: a square foot, a body tapering to its tip, a band round it, all lifted by z
+  const coneG = mk("g", {}, g), cFoot = solid(coneG), cBody = mk("path", { class: "sil" }, coneG), cBand = mk("path", { class: "nf lo" }, coneG);
+  let coneDrawn = NaN;
+  function drawCone(z) {
+    if (z === coneDrawn) return;
+    coneDrawn = z;
+    if (z === null) { put(cFoot, { sil: "", crease: "" }); cBody.setAttribute("d", ""); cBand.setAttribute("d", ""); return; }
+    const [x, y] = CONE, at = (r) => circ(r, 24).map((q) => ({ ...q, u: q.u + x, v: q.v + y }));
+    put(cFoot, prism(P, front, ...rings(x - CB - 1.6, y - CB - 1.6, x + CB + 1.6, y + CB + 1.6, 2, 0.8), z, z + 1.6));
+    cBody.setAttribute("d", poly(hull(ringAt(P, at(CB), z + 1.6).concat([P(x, y, z + CH)]))));
+    cBand.setAttribute("d", open(ringAt(P, run(at(CB * 0.55), front), z + CH * 0.45)));
   }
 
   // the broken-down car, askew in its lane: a body, a cabin whose top is shorter than its foot, wheels on the side we see
-  const H = L / 2, W2 = WD / 2, [cx, cy, th] = CAR, cs = Math.cos(th), sn = Math.sin(th), pl = (ring) => place2(ring, cx, cy, th);
+  const pl = (ring) => place2(ring, cx, cy, th);
   const [body, bodyIn] = rings(-H, -W2, H, W2, 6.5, 1.4);
   const foot = rrect(-H + 7, -W2 + 1.8, H - 8, W2 - 1.8, 4, 4), top = rrect(-H + 10, -W2 + 3.4, H - 16, W2 - 3.4, 2, 4), topIn = rrect(-H + 11.2, -W2 + 4.6, H - 17.2, W2 - 4.6, 1.2, 4);
-  const car = mk("g", {}, g);
-  put(solid(car), prism(P, front, pl(body), pl(bodyIn), Z0, ZB));
-  put(solid(car), { sil: poly(hull(ringAt(P, pl(foot), ZB).concat(ringAt(P, pl(top), ZC)))), crease: open(ringAt(P, run(pl(topIn), front), ZC)) });
+  const car = mk("g", {}, g), carBody = solid(car), carCab = solid(car);
+  put(carBody, prism(P, front, pl(body), pl(bodyIn), Z0, ZB));
+  put(carCab, { sil: poly(hull(ringAt(P, pl(foot), ZB).concat(ringAt(P, pl(top), ZC)))), crease: open(ringAt(P, run(pl(topIn), front), ZC)) });
   const side = cs - sn > 0 ? W2 + 0.4 : -W2 - 0.4;
   for (const cu of [-H + 8.5, H - 8.5]) {
     const pts = Array.from({ length: 20 }, (_, j) => { const t = (j / 20) * Math.PI * 2, u = cu + WR * Math.cos(t); return P(cx + u * cs - side * sn, cy + u * sn + side * cs, WR + WR * Math.sin(t)); });
     mk("path", { class: "sil", d: poly(pts) }, car);
   }
 
+  // the smoke: small clouds over the bonnet, in the plane that faces the viewer, opaque like smoke, the higher in front
+  const clouds = CLOUDS.map(() => mk("path", { class: "lo" }, g)), rise = tween(0);
+  let smokeDrawn = NaN;
+  function drawSmoke(k) {
+    if (k === smokeDrawn) return;
+    smokeDrawn = k;
+    CLOUDS.forEach(([across, up, size], i) => {
+      const a = across + 2 * k * (i + 1), h = ZB + up + DRIFT * k * (i + 1) * 0.6, sz = size * (1 + 0.08 * k);
+      clouds[i].setAttribute("d", poly(cloud(sz).map(([t, z]) => P(bonnet[0] + (a + t) / Math.SQRT2, bonnet[1] - (a + t) / Math.SQRT2, h + z))));
+    });
+  }
+
+  // the cone's clock: falling (from t0), lifting away (from t0), or still at z
+  let mode = "gone", t0 = 0;
+  const coneZ = (now) => {
+    const t = now - t0;
+    if (mode === "fall") {
+      if (HL.reducedMotion() || t >= FALL + HOP) return 0;
+      if (t < FALL) { const p = t / FALL; return DROP * (1 - p * p); }
+      return hop * Math.sin((Math.PI * (t - FALL)) / HOP);
+    }
+    if (mode === "lift") { const p = HL.reducedMotion() ? 1 : clamp(t / LIFT, 0, 1); return DROP * p * p; }
+    return null;
+  };
   const B = register(stage, (_dt, now) => {
-    let moving = false;
-    cones.forEach((cn, i) => { drawCone(i, tval(cn.k, now)); if (!tdone(cn.k, now)) moving = true; });
+    const z = coneZ(now);
+    drawCone(z === null || (mode === "lift" && z >= DROP) ? null : z);
+    drawSmoke(tval(rise, now));
+    let moving = !tdone(rise, now);
+    if (mode === "fall" && now - t0 < FALL + HOP) moving = true;
+    if (mode === "lift") { if (now - t0 < LIFT) moving = true; else mode = "gone"; }
     return moving;
   });
   bag.add(B.unregister);
@@ -84,10 +123,10 @@ function mount({ stage, svg, read }, value) {
     if (a === act) return;
     act = a;
     const now = performance.now();
-    // out from the car on the way up, and back in on the way down: the last one placed is the first lifted
-    cones.forEach((cn, i) => { if (i) tset(cn.k, a ? 1 : 0, now, (a ? i - 1 : CONES.length - 1 - i) * stag); });
-    cones.forEach((cn) => cn.body.classList.toggle("hi", true));
-    read.textContent = a ? "lane closed" : "rest";
+    if (a) { mode = "fall"; t0 = now; } else if (mode === "fall") { mode = "lift"; t0 = now; }
+    tset(rise, a ? 1 : 0, now, 0);
+    carBody.sil.classList.toggle("hi", !a); carCab.sil.classList.toggle("hi", !a); cBody.classList.toggle("hi", a);
+    read.textContent = a ? "marked" : "rest";
     B.wake();
   }
   setActive(false);
@@ -101,14 +140,14 @@ function mount({ stage, svg, read }, value) {
   bag.add(pointer(stage, { move: (p) => setActive(hit(p)), leave: () => setActive(false) }));
   bag.add(() => svg.replaceChildren());
 
-  return { set: (v) => { stag = clamp(v, 40, 300); }, destroy: bag.dispose };
+  return { set: (v) => { hop = clamp(v, 0, 4); }, destroy: bag.dispose };
 }
 
 hairline({
   name: "traffic-incident",
-  means: "A car broken down askew in its lane, a cone behind it: over the road two more cones rise and close the lane.",
-  rules: [1, 2, 4, 5],
-  range: [80, 160, 260],
+  means: "A car broken down askew in its lane, smoke off its bonnet: over the road a cone drops in behind it and marks the hazard.",
+  rules: [1, 4, 5, 8],
+  range: [0.6, 1.5, 3],
   tour: [[160, 150], [230, 185], null],
   mount,
 });
