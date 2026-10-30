@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gallery",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["/Users/thiago.andrade/Library/Mobile Documents/com~apple~CloudDocs/Projects/tomtom/tomtom-docs-illustrations/tools/serve.mjs", "4317"],
+      "port": 4317
+    }
+  ]
+}
