@@ -4,6 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Docs Illustrations</title>
+<meta name="description" content="Hairline illustrations for TomTom Docs and the use-case thumbnails: animated, light and dark, ready to copy as SVG.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TomTom Docs illustrations">
+<meta property="og:title" content="TomTom Docs illustrations">
+<meta property="og:description" content="Hairline illustrations for TomTom Docs and the use-case thumbnails: animated, light and dark, ready to copy as SVG.">
+<meta property="og:url" content="https://thiagoandrade-tomtom.github.io/tomtom-docs-illustrations/">
+<meta property="og:image" content="https://thiagoandrade-tomtom.github.io/tomtom-docs-illustrations/og/index.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://thiagoandrade-tomtom.github.io/tomtom-docs-illustrations/og/index.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3a9 9 0 0 0-9 9c0 7 9 17 9 17s9-10 9-17a9 9 0 0 0-9-9z' fill='none' stroke='%231988CF' stroke-width='2'/%3E%3Ccircle cx='16' cy='12' r='3' fill='%231988CF'/%3E%3C/svg%3E">
 <style>
   /* Two surfaces, light and dark. A figure stands loose on its surface: its
@@ -405,7 +416,12 @@ async function copy(text, what) {
 document.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", async () => {
   const { slug, alt } = INDEX[state.i], name = `${slug.replace("/", "-")}-${palette}-${state.theme}`;
   if (b.dataset.act === "copy-alt") return copy(alt, "Alt text");
-  if (b.dataset.act === "copy-link") { writeHash(); return copy(location.href, "Link"); }
+  // the link to share is the figure's own page, which carries its preview for Slack and the like and opens it here
+  if (b.dataset.act === "copy-link") {
+    writeHash();
+    const q = new URLSearchParams({ theme: state.theme, view: state.view, palette });
+    return copy(new URL(`share/${slug.replace(/\//g, "-")}.html#${q}`, location.href.split("#")[0]).href, "Link");
+  }
   const svg = await restSVG(slug, state.theme);
   if (b.dataset.act === "copy-svg") return copy(svg, "SVG");
   if (b.dataset.act === "download-svg") { save(new Blob([svg], { type: "image/svg+xml" }), name + ".svg"); return toast(`${name}.svg downloaded`); }

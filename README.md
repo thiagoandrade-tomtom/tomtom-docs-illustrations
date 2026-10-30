@@ -20,6 +20,7 @@ index.html            the gallery: a grid of every figure; open one for a large 
 PROMPT.md             the brief; only the SECTION line changes per figure
 tools/export-svg.mjs  writes svg/ from figures/
 tools/serve.mjs       a static server for the gallery
+tools/export-share.mjs  writes og/ (link preview images) and share/ (a page per figure)
 lib/kernel.js         the hairline kernel the gallery and exporter load: a copy of the skill's,
                       outside .claude/ so GitHub Pages serves it
 ```
@@ -69,7 +70,12 @@ change `BG` in `tools/export-svg.mjs` and export again.
 
 The gallery keeps the open figure in the address, so a link opens on it:
 `…/tomtom-docs-illustrations/#fig=usecases/route&theme=dark&view=static&palette=red`.
-The modal's **Copy link to this view** gives that link.
+The modal's link button copies a share link instead, `…/share/<name>.html#…`:
+a small page per figure that carries its preview image for Slack and the like
+(which cannot see past a `#`) and sends the reader on to the gallery with the
+figure open. Make the previews and share pages with
+`node tools/export-share.mjs` after `export-svg.mjs`: they land in `og/` and
+`share/`.
 
 ## Colour styles
 
