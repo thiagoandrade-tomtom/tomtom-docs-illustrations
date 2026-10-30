@@ -287,12 +287,12 @@ async function restSVG(slug, theme) {
 /* ---------- page theme ---------- */
 let pageTheme = "light";
 // light unless the viewer picked dark here before
-try { pageTheme = localStorage.getItem("docs-ill-theme") || "light"; } catch {}
+try { pageTheme = localStorage.getItem("docs-ill-theme-v2") || "light"; } catch {}
 function setPageTheme(t) {
   pageTheme = t;
   document.documentElement.dataset.theme = t;
   document.querySelectorAll("[data-page-theme]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.pageTheme === t)));
-  try { localStorage.setItem("docs-ill-theme", t); } catch {}
+  try { localStorage.setItem("docs-ill-theme-v2", t); } catch {}
 }
 document.querySelectorAll("[data-page-theme]").forEach((b) => b.addEventListener("click", () => setPageTheme(b.dataset.pageTheme)));
 setPageTheme(pageTheme);
