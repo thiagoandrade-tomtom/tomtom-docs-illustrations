@@ -12,7 +12,7 @@ static SVG in TomTom Docs and the CMS.
 figures/<slug>.js     the figure, in the skill's format (reads HL, ends with hairline({...}))
 figures/usecases/     copies of the use-case thumbnails from tomtom-orbis-usecases-library;
                       that repo keeps its own, and a change there is copied here by hand
-figures/index.json    the list: slug, section name, alt text, group (Docs or Use cases)
+figures/index.json    the list: slug, the illustration's own name, what it is for, alt text
 svg/<slug>.svg        the rest pose, light theme, colours inlined, 400 × 320
 index.html            the gallery: a grid of every figure; open one for a large animated view, light/dark,
                       animated/static, and Copy SVG, Download SVG/PNG, Copy alt text
@@ -34,7 +34,8 @@ lib/kernel.js         the hairline kernel the gallery and exporter load: a copy 
    `--answer` is a world point on the part that answers the pointer. Use the
    `--flag=value` form, so negative coordinates parse. It writes
    `hairline-<slug>-look.png` (ignored by git): read it, not just the exit code.
-3. Add `{ "slug", "section", "alt", "group" }` to `figures/index.json`.
+3. Add `{ "slug", "name", "for", "alt" }` to `figures/index.json`: `name` is the
+   illustration's own name, `for` the Docs section or use case it was made for.
 4. Write the static SVG: `node tools/export-svg.mjs <slug>`.
 5. Look at it in the gallery: `node tools/serve.mjs`, then open
    http://127.0.0.1:4317/. The gallery's exports are made in the

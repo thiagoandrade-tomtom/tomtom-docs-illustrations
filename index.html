@@ -32,25 +32,17 @@
   .seg button[aria-pressed="true"] { background: var(--card); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
   .seg button:focus-visible, .btn:focus-visible, .card:focus-visible, .icon:focus-visible { outline: 2px solid var(--bright); outline-offset: 2px; }
 
-  main { max-width: 1200px; margin: 0 auto; padding: 8px 24px 48px; }
-  main { --min: 230px; --gap: 16px; }
+  main { max-width: 1200px; margin: 0 auto; padding: 16px 24px 48px; --min: 230px; --gap: 16px;
+    display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fill, minmax(var(--min), 1fr)); align-items: start; }
   main[data-density="compact"] { --min: 160px; --gap: 12px; }
   main[data-density="large"] { --min: 320px; --gap: 20px; }
-  main h2 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 56px 0 14px; padding-top: 20px; border-top: 1px solid var(--rule); }
-  main h2:first-child { margin-top: 16px; padding-top: 0; border-top: 0; }
-  main h2 span { font-weight: 400; margin-left: 6px; }
-  .grid { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fill, minmax(var(--min), 1fr)); }
-  /* All: one grid of every card, the groups' headings gone */
-  main[data-group="all"] { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fill, minmax(var(--min), 1fr)); padding-top: 16px; }
-  main[data-group="all"] h2 { display: none; }
-  main[data-group="all"] .grid { display: contents; }
-  main[data-density="compact"] .card .slug { display: none; }
+  main[data-density="compact"] .card .alt { display: none; }
   .tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .tools .lbl { font-size: 12px; color: var(--muted); margin-right: -4px; }
   .card { background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 8px 8px 12px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 8px; transition: border-color .2s; }
   .card:hover { border-color: color-mix(in srgb, var(--bright) 45%, var(--rule)); }
   .card .name { padding: 0 6px; font-weight: 600; }
-  .card .slug { padding: 0 6px; color: var(--muted); font: 12px ui-monospace, monospace; }
+  .card .alt { padding: 0 6px; color: var(--muted); font-size: 12.5px; line-height: 1.4; }
   .thumb { background: var(--ground); border-radius: 8px; }
 
   .hl-stage {
@@ -106,11 +98,6 @@
       <button type="button" data-density="comfortable">M</button>
       <button type="button" data-density="large">L</button>
     </div>
-    <span class="lbl">Show</span>
-    <div class="seg" role="group" aria-label="Grouping">
-      <button type="button" data-group="grouped">By group</button>
-      <button type="button" data-group="all">All</button>
-    </div>
     <div class="seg" role="group" aria-label="Page theme">
       <button type="button" data-page-theme="light" aria-pressed="true">Light</button>
       <button type="button" data-page-theme="dark" aria-pressed="false">Dark</button>
@@ -132,6 +119,7 @@
     <div class="side">
       <div>
         <h2 id="m-title"></h2>
+        <div class="slug" id="m-for"></div>
         <div class="slug" id="m-slug"></div>
       </div>
       <div class="alt" id="m-alt"></div>
@@ -269,19 +257,17 @@ function setPageTheme(t) {
 document.querySelectorAll("[data-page-theme]").forEach((b) => b.addEventListener("click", () => setPageTheme(b.dataset.pageTheme)));
 setPageTheme(pageTheme);
 
-/* ---------- grid size and grouping, remembered per viewer ---------- */
-const prefs = { density: "comfortable", group: "grouped" };
+/* ---------- card size, remembered per viewer ---------- */
+const prefs = { density: "comfortable" };
 try { Object.assign(prefs, JSON.parse(localStorage.getItem("docs-ill-grid") || "{}")); } catch {}
 function setPref(k, v) {
   prefs[k] = v;
   const main = document.getElementById("grid");
-  main.dataset.density = prefs.density; main.dataset.group = prefs.group;
+  main.dataset.density = prefs.density;
   document.querySelectorAll("[data-density]:not(main)").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.density === prefs.density)));
-  document.querySelectorAll("[data-group]:not(main)").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.group === prefs.group)));
   try { localStorage.setItem("docs-ill-grid", JSON.stringify(prefs)); } catch {}
 }
 document.querySelectorAll("button[data-density]").forEach((b) => b.addEventListener("click", () => setPref("density", b.dataset.density)));
-document.querySelectorAll("button[data-group]").forEach((b) => b.addEventListener("click", () => setPref("group", b.dataset.group)));
 setPref("density", prefs.density);
 
 /* ---------- toast ---------- */
@@ -306,9 +292,10 @@ function readHash() {
   openModal(i, { theme: q.get("theme"), view: q.get("view") });
 }
 async function render() {
-  const { slug, section, alt } = INDEX[state.i];
+  const { slug, name, alt } = INDEX[state.i];
   writeHash();
-  document.getElementById("m-title").textContent = section;
+  document.getElementById("m-title").textContent = name;
+  document.getElementById("m-for").textContent = `for ${INDEX[state.i].for}`;
   document.getElementById("m-slug").textContent = `figures/${slug}.js · svg/${slug}.svg`;
   document.getElementById("m-alt").textContent = alt;
   document.querySelectorAll("[data-theme-set]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.themeSet === state.theme)));
@@ -383,24 +370,17 @@ document.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click
 (async () => {
   HL.inject(document);
   INDEX = await (await fetch("figures/index.json")).json();
-  const main = document.getElementById("grid"), grids = new Map();
-  for (const [i, { slug, section, group = "Docs" }] of INDEX.entries()) {
-    if (!grids.has(group)) {
-      const h = document.createElement("h2"), grid = document.createElement("div");
-      grid.className = "grid";
-      main.append(h, grid);
-      grids.set(group, { h, grid, n: 0 });
-    }
-    const sec = grids.get(group);
-    sec.h.innerHTML = `${group}<span>${++sec.n}</span>`;
-    const grid = sec.grid;
+  const grid = document.getElementById("grid");
+  for (const [i, { slug, name, alt }] of INDEX.entries()) {
     let fig;
     new Function("HL", "hairline", await (await fetch(`figures/${slug}.js`)).text())(HL, (f) => { fig = f; });
     FIGS.set(slug, fig);
     const card = document.createElement("button");
     card.type = "button"; card.className = "card";
-    card.setAttribute("aria-label", `Open ${section}`);
-    card.innerHTML = `<div class="thumb"><div class="hl-stage"></div></div><span class="name">${section}</span><span class="slug">${slug}</span>`;
+    card.setAttribute("aria-label", `Open ${name}`);
+    card.innerHTML = `<div class="thumb"><div class="hl-stage"></div></div><span class="name"></span><span class="alt"></span>`;
+    card.querySelector(".name").textContent = name;
+    card.querySelector(".alt").textContent = alt;
     grid.appendChild(card);
     const m = mountStage(card.querySelector(".hl-stage"), fig);
     if (m) {
