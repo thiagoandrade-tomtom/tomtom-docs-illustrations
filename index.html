@@ -33,16 +33,17 @@
   .seg button:focus-visible, .btn:focus-visible, .card:focus-visible, .icon:focus-visible { outline: 2px solid var(--bright); outline-offset: 2px; }
 
   main { max-width: 1200px; margin: 0 auto; padding: 16px 24px 48px; --min: 230px; --gap: 16px;
-    display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fill, minmax(var(--min), 1fr)); align-items: start; }
+    display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fill, minmax(var(--min), 1fr)); }
   main[data-density="compact"] { --min: 160px; --gap: 12px; }
   main[data-density="large"] { --min: 320px; --gap: 20px; }
   main[data-density="compact"] .card .alt { display: none; }
   .tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  .tools .lbl { font-size: 12px; color: var(--muted); margin-right: -4px; }
   .card { background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 8px 8px 12px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 8px; transition: border-color .2s; }
   .card:hover { border-color: color-mix(in srgb, var(--bright) 45%, var(--rule)); }
-  .card .name { padding: 0 6px; font-weight: 600; }
-  .card .alt { padding: 0 6px; color: var(--muted); font-size: 12.5px; line-height: 1.4; }
+  /* every card the same height: the name on one line, the alt text on two, both cut with an ellipsis */
+  .card .name { padding: 0 6px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .alt { padding: 0 6px; color: var(--muted); font-size: 12.5px; line-height: 1.4; height: 2.8em;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
   .thumb { background: var(--ground); border-radius: 8px; }
 
   .hl-stage {
@@ -57,21 +58,30 @@
 
   dialog { border: 0; padding: 0; background: transparent; max-width: min(960px, calc(100vw - 32px)); width: 100%; color: var(--text); }
   dialog::backdrop { background: var(--scrim); }
-  .sheet { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) 300px; }
-  .view { background: var(--ground); display: grid; place-items: center; padding: 24px; min-height: 420px; position: relative; transition: background .2s; }
+  /* the sheet keeps one height whatever the figure, so stepping through them does not jump */
+  .sheet { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) 280px; height: 480px; }
+  .view { background: var(--ground); display: grid; place-items: center; padding: 24px; position: relative; transition: background .2s; }
   #m-stage { width: 100%; display: grid; place-items: center; }
-  .view .hl-stage, .view .static { width: min(100%, 560px); }
+  /* 5:4, and short enough to sit in the 480px sheet with its padding */
+  .sheet > * { min-height: 0; }
+  .view .hl-stage, .view .static { width: min(100%, 520px); }
   .view .static svg { width: 100%; height: auto; display: block; }
-  .side { padding: 20px; display: flex; flex-direction: column; gap: 16px; border-left: 1px solid var(--rule); }
-  .side h2 { margin: 0; font-size: 18px; }
-  .side .slug { color: var(--muted); font: 12px ui-monospace, monospace; }
-  .side .alt { color: var(--muted); font-size: 13px; }
-  .row { display: flex; flex-direction: column; gap: 6px; }
-  .row label { font-size: 12px; color: var(--muted); }
-  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .btn { border: 1px solid var(--rule); background: var(--card); border-radius: 8px; padding: 8px 10px; cursor: pointer; font-size: 13px; text-align: center; }
+  .side { padding: 20px; display: flex; flex-direction: column; gap: 14px; border-left: 1px solid var(--rule); min-height: 0; }
+  .side h2 { margin: 0; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .side .slug { color: var(--muted); font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .side .alt { color: var(--muted); font-size: 13px; line-height: 1.45; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 6; line-clamp: 6; overflow: hidden; }
+  .side .controls { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+  .side .line { display: flex; gap: 8px; align-items: center; }
+  .seg button svg, .btn svg, .icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; display: block; }
+  .seg button:has(svg) { padding: 6px 9px; }
+  .btn { border: 1px solid var(--rule); background: var(--card); border-radius: 8px; height: 34px; min-width: 34px; padding: 0 9px; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
   .btn:hover { border-color: var(--muted); }
   .btn.primary { background: var(--text); color: var(--card); border-color: var(--text); }
+  /* a short name for an icon, shown on hover and focus */
+  [data-tip] { position: relative; }
+  [data-tip]::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; translate: -50% 4px; background: var(--text); color: var(--card);
+    font-size: 11px; line-height: 1; padding: 5px 7px; border-radius: 6px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .12s, translate .12s; z-index: 5; }
+  [data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; translate: -50% 0; }
   .top { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; }
   .icon { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--rule); background: var(--card); cursor: pointer; display: grid; place-items: center; }
   .toast { position: fixed; left: 50%; bottom: 24px; translate: -50% 0; background: var(--text); color: var(--card); padding: 8px 14px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 10; }
@@ -79,7 +89,7 @@
   .offstage { position: fixed; left: -10000px; top: 0; width: 400px; }
 
   @media (max-width: 760px) {
-    .sheet { grid-template-columns: 1fr; }
+    .sheet { grid-template-columns: 1fr; height: auto; }
     .side { border-left: 0; border-top: 1px solid var(--rule); }
     .view { min-height: 260px; padding: 16px; }
   }
@@ -92,15 +102,14 @@
     <p>Hover a card to play its story. Open one to see it large, switch light and dark, and copy or download the SVG.</p>
   </div>
   <div class="tools">
-    <span class="lbl">Size</span>
     <div class="seg" role="group" aria-label="Card size">
-      <button type="button" data-density="compact">S</button>
-      <button type="button" data-density="comfortable">M</button>
-      <button type="button" data-density="large">L</button>
+      <button type="button" data-density="compact" data-tip="Small cards" aria-label="Small cards">S</button>
+      <button type="button" data-density="comfortable" data-tip="Medium cards" aria-label="Medium cards">M</button>
+      <button type="button" data-density="large" data-tip="Large cards" aria-label="Large cards">L</button>
     </div>
     <div class="seg" role="group" aria-label="Page theme">
-      <button type="button" data-page-theme="light" aria-pressed="true">Light</button>
-      <button type="button" data-page-theme="dark" aria-pressed="false">Dark</button>
+      <button type="button" data-page-theme="light" aria-pressed="true" data-tip="Light" aria-label="Light"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg></button>
+      <button type="button" data-page-theme="dark" aria-pressed="false" data-tip="Dark" aria-label="Dark"><svg viewBox="0 0 16 16"><path d="M13.2 10.2A5.6 5.6 0 0 1 5.8 2.8a5.6 5.6 0 1 0 7.4 7.4z"/></svg></button>
     </div>
   </div>
 </header>
@@ -120,31 +129,27 @@
       <div>
         <h2 id="m-title"></h2>
         <div class="slug" id="m-for"></div>
-        <div class="slug" id="m-slug"></div>
       </div>
       <div class="alt" id="m-alt"></div>
-      <div class="row">
-        <label>Theme</label>
-        <div class="seg" role="group" aria-label="Figure theme">
-          <button type="button" data-theme-set="light">Light</button>
-          <button type="button" data-theme-set="dark">Dark</button>
+      <div class="controls">
+        <div class="line">
+          <div class="seg" role="group" aria-label="Figure theme">
+            <button type="button" data-theme-set="light" data-tip="Light" aria-label="Light"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg></button>
+            <button type="button" data-theme-set="dark" data-tip="Dark" aria-label="Dark"><svg viewBox="0 0 16 16"><path d="M13.2 10.2A5.6 5.6 0 0 1 5.8 2.8a5.6 5.6 0 1 0 7.4 7.4z"/></svg></button>
+          </div>
+          <div class="seg" role="group" aria-label="View">
+            <button type="button" data-view-set="live" data-tip="Animated" aria-label="Animated"><svg viewBox="0 0 16 16"><path d="M5 3.2v9.6L12.6 8z"/></svg></button>
+            <button type="button" data-view-set="static" data-tip="Static SVG" aria-label="Static SVG"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="2"/><path d="M2.5 11l3.5-3.5 3 3 2-2 2.5 2.5"/></svg></button>
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <label>View</label>
-        <div class="seg" role="group" aria-label="View">
-          <button type="button" data-view-set="live">Animated</button>
-          <button type="button" data-view-set="static">Static SVG</button>
+        <div class="line">
+          <button class="btn primary" type="button" data-act="copy-svg" data-tip="Copy SVG" aria-label="Copy SVG"><svg viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="1.6"/><path d="M10.5 3.5v-.4A1.6 1.6 0 0 0 8.9 1.5H4.1A1.6 1.6 0 0 0 2.5 3.1v4.8a1.6 1.6 0 0 0 1.6 1.6h.4"/></svg> SVG</button>
+          <button class="btn" type="button" data-act="download-svg" data-tip="Download SVG" aria-label="Download SVG"><svg viewBox="0 0 16 16"><path d="M8 2.5v8M4.8 7.5L8 10.7l3.2-3.2M2.5 13.5h11"/></svg> SVG</button>
+          <button class="btn" type="button" data-act="download-png" data-tip="Download PNG" aria-label="Download PNG"><svg viewBox="0 0 16 16"><path d="M8 2.5v8M4.8 7.5L8 10.7l3.2-3.2M2.5 13.5h11"/></svg> PNG</button>
         </div>
-      </div>
-      <div class="row">
-        <label>Export (current theme)</label>
-        <div class="actions">
-          <button class="btn primary" type="button" data-act="copy-svg">Copy SVG</button>
-          <button class="btn" type="button" data-act="download-svg">Download SVG</button>
-          <button class="btn" type="button" data-act="download-png">Download PNG</button>
-          <button class="btn" type="button" data-act="copy-alt">Copy alt text</button>
-          <button class="btn" type="button" data-act="copy-link" style="grid-column: 1 / -1">Copy link to this view</button>
+        <div class="line">
+          <button class="btn" type="button" data-act="copy-alt" data-tip="Copy alt text" aria-label="Copy alt text"><svg viewBox="0 0 16 16"><path d="M2.5 4h11M2.5 8h11M2.5 12h7"/></svg> Alt</button>
+          <button class="btn" type="button" data-act="copy-link" data-tip="Copy link to this view" aria-label="Copy link to this view"><svg viewBox="0 0 16 16"><path d="M6.8 9.2a2.8 2.8 0 0 0 4 0l2-2a2.8 2.8 0 0 0-4-4l-.6.6M9.2 6.8a2.8 2.8 0 0 0-4 0l-2 2a2.8 2.8 0 0 0 4 4l.6-.6"/></svg> Link</button>
         </div>
       </div>
     </div>
@@ -296,8 +301,8 @@ async function render() {
   writeHash();
   document.getElementById("m-title").textContent = name;
   document.getElementById("m-for").textContent = `for ${INDEX[state.i].for}`;
-  document.getElementById("m-slug").textContent = `figures/${slug}.js · svg/${slug}.svg`;
-  document.getElementById("m-alt").textContent = alt;
+  const altEl = document.getElementById("m-alt");
+  altEl.textContent = alt; altEl.title = alt;
   document.querySelectorAll("[data-theme-set]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.themeSet === state.theme)));
   document.querySelectorAll("[data-view-set]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.viewSet === state.view)));
   const view = document.getElementById("m-view");
