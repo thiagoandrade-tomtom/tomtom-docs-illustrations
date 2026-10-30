@@ -1,7 +1,7 @@
 [
   {"slug": "map-layers", "name": "Layer Stack", "for": "Map layers", "alt": "Three map sheets stacked above one another: a field of data points, the road network, and the finished map with a river, a park and a route between two pins."},
   {"slug": "traffic", "name": "Rush Hour", "for": "Traffic", "alt": "Three cars stopped in a queue on a road, with empty road behind them."},
-  {"slug": "traffic-incident", "name": "Hazard Ahead", "for": "Traffic incidents", "alt": "A car stopped askew in its lane on a two-lane road, a warning triangle and a cone behind it."},
+  {"slug": "traffic-incident", "name": "Hazard Ahead", "for": "Traffic incidents", "alt": "A car broken down askew in its lane on a two-lane road, a traffic cone behind it."},
   {"slug": "search", "name": "Lens and Pin", "for": "Search", "alt": "A magnifying glass held over a street map, with a map pin rising up through the lens."},
   {"slug": "map-data", "name": "Live Streets", "for": "Map Data", "alt": "A map tile with a connected network of roads, low buildings, and traffic dashes on the main road."},
   {"slug": "agentic-map", "name": "Ask the Way", "for": "Agentic Map", "alt": "A chat bubble whose tail is a map pin, standing on a street map, with an AI spark at its corner and a dashed route to a destination."},
