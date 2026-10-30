@@ -79,3 +79,9 @@ bright #1B1C1F on light, #F2F3F5 on dark) and **TomTom red** (#DF1B12, bright
 #FF6F61 on dark). Edge, mid and lo are the ink mixed into the background at 88,
 62 and 38%, as for Blueprint. The TomTom red value is a best guess: set it to
 the brand's exact red in `index.html` (`:root[data-palette="red"]`).
+
+## Credits
+
+The figures are drawn with [hairline](https://github.com/lucasmarkes/hairline)
+by Lucas Marques, MIT licensed: the skill in `.claude/skills/` and its kernel,
+copied to `lib/kernel.js`. Its licence is in `lib/HAIRLINE-LICENSE`.
