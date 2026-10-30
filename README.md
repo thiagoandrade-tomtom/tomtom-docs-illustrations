@@ -68,5 +68,14 @@ change `BG` in `tools/export-svg.mjs` and export again.
 ## Links
 
 The gallery keeps the open figure in the address, so a link opens on it:
-`…/tomtom-docs-illustrations/#fig=usecases/route&theme=dark&view=static`.
+`…/tomtom-docs-illustrations/#fig=usecases/route&theme=dark&view=static&palette=red`.
 The modal's **Copy link to this view** gives that link.
+
+## Colour styles
+
+The gallery can show and export every figure in three styles: **Blueprint**
+(#1988CF, the default and what `svg/` ships), **Black and white** (ink #6B6F78,
+bright #1B1C1F on light, #F2F3F5 on dark) and **TomTom red** (#DF1B12, bright
+#FF6F61 on dark). Edge, mid and lo are the ink mixed into the background at 88,
+62 and 38%, as for Blueprint. The TomTom red value is a best guess: set it to
+the brand's exact red in `index.html` (`:root[data-palette="red"]`).

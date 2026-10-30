@@ -11,14 +11,24 @@
      into it, and the bright stroke goes a step lighter on dark. */
   :root {
     --page: #F5F6F8; --card: #FFFFFF; --text: #1B1C1F; --muted: #6B6F76; --rule: #E4E6EA;
-    --ground: #FFFFFF; --bright: #1988CF; --chip: #EEF0F3; --scrim: rgba(17, 19, 23, .45);
+    --ground: #FFFFFF; --chip: #EEF0F3; --scrim: rgba(17, 19, 23, .45);
   }
   [data-theme="dark"] {
     --page: #0B0D10; --card: #14171C; --text: #E9EBEE; --muted: #8A8F98; --rule: #242830;
-    --ground: #14171C; --bright: #6CC0F5; --chip: #1C2027; --scrim: rgba(0, 0, 0, .6);
+    --ground: #14171C; --chip: #1C2027; --scrim: rgba(0, 0, 0, .6);
   }
-  .surface-light { --ground: #FFFFFF; --bright: #1988CF; }
-  .surface-dark { --ground: #14171C; --bright: #6CC0F5; }
+  /* the colour style: the ink edge/mid/lo are mixed from, and the bright stroke on light and on dark */
+  :root { --ink: #1988CF; --bright-l: #1988CF; --bright-d: #6CC0F5; --bright: var(--bright-l); }
+  :root[data-palette="mono"] { --ink: #6B6F78; --bright-l: #1B1C1F; --bright-d: #F2F3F5; }
+  :root[data-palette="red"] { --ink: #DF1B12; --bright-l: #DF1B12; --bright-d: #FF6F61; }
+  :root[data-theme="dark"] { --bright: var(--bright-d); }
+  .surface-light { --ground: #FFFFFF; --bright: var(--bright-l); }
+  .surface-dark { --ground: #14171C; --bright: var(--bright-d); }
+  .sw { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .sw-blueprint { background: #1988CF; }
+  .sw-mono { background: linear-gradient(135deg, #1B1C1F 50%, #E4E6EA 50%); box-shadow: inset 0 0 0 1px #9A9EA6; }
+  .sw-red { background: #DF1B12; }
+  .seg button:has(.sw) { padding: 7px 8px; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
   button { font: inherit; color: inherit; }
@@ -49,9 +59,9 @@
   .hl-stage {
     --hairline-plate: var(--ground);
     --hairline-hi: var(--bright);
-    --hairline-edge: color-mix(in srgb, #1988CF 88%, var(--ground));
-    --hairline-mid: color-mix(in srgb, #1988CF 62%, var(--ground));
-    --hairline-lo: color-mix(in srgb, #1988CF 38%, var(--ground));
+    --hairline-edge: color-mix(in srgb, var(--ink) 88%, var(--ground));
+    --hairline-mid: color-mix(in srgb, var(--ink) 62%, var(--ground));
+    --hairline-lo: color-mix(in srgb, var(--ink) 38%, var(--ground));
     --hairline-stroke: 1.1;
     pointer-events: none;
   }
@@ -70,7 +80,13 @@
   .side h2 { margin: 0; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .side .slug { color: var(--muted); font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .side .alt { color: var(--muted); font-size: 13px; line-height: 1.45; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 6; line-clamp: 6; overflow: hidden; }
-  .side .controls { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+  .side .controls { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+  .side .group { display: flex; flex-direction: column; gap: 8px; }
+  .side .share { padding-top: 12px; border-top: 1px solid var(--rule); }
+  .altbox { display: flex; gap: 8px; align-items: flex-start; }
+  .altbox .alt { flex: 1; min-width: 0; }
+  .btn.small { height: 28px; min-width: 28px; padding: 0 6px; flex: none; }
+  .btn.grow { flex: 1; }
   .side .line { display: flex; gap: 8px; align-items: center; }
   .seg button svg, .btn svg, .icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; display: block; }
   .seg button:has(svg) { padding: 6px 9px; }
@@ -107,6 +123,11 @@
       <button type="button" data-density="comfortable" data-tip="Medium cards" aria-label="Medium cards">M</button>
       <button type="button" data-density="large" data-tip="Large cards" aria-label="Large cards">L</button>
     </div>
+<div class="seg" role="group" aria-label="Colour style">
+      <button type="button" data-palette-set="blueprint" data-tip="Blueprint" aria-label="Blueprint"><span class="sw sw-blueprint"></span></button>
+      <button type="button" data-palette-set="mono" data-tip="Black and white" aria-label="Black and white"><span class="sw sw-mono"></span></button>
+      <button type="button" data-palette-set="red" data-tip="TomTom red" aria-label="TomTom red"><span class="sw sw-red"></span></button>
+    </div>
     <div class="seg" role="group" aria-label="Page theme">
       <button type="button" data-page-theme="light" aria-pressed="true" data-tip="Light" aria-label="Light"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg></button>
       <button type="button" data-page-theme="dark" aria-pressed="false" data-tip="Dark" aria-label="Dark"><svg viewBox="0 0 16 16"><path d="M13.2 10.2A5.6 5.6 0 0 1 5.8 2.8a5.6 5.6 0 1 0 7.4 7.4z"/></svg></button>
@@ -130,8 +151,12 @@
         <h2 id="m-title"></h2>
         <div class="slug" id="m-for"></div>
       </div>
-      <div class="alt" id="m-alt"></div>
+      <div class="altbox">
+        <div class="alt" id="m-alt"></div>
+        <button class="btn small" type="button" data-act="copy-alt" data-tip="Copy alt text" aria-label="Copy alt text"><svg viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="1.6"/><path d="M10.5 3.5v-.4A1.6 1.6 0 0 0 8.9 1.5H4.1A1.6 1.6 0 0 0 2.5 3.1v4.8a1.6 1.6 0 0 0 1.6 1.6h.4"/></svg></button>
+      </div>
       <div class="controls">
+        <div class="group">
         <div class="line">
           <div class="seg" role="group" aria-label="Figure theme">
             <button type="button" data-theme-set="light" data-tip="Light" aria-label="Light"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg></button>
@@ -143,13 +168,22 @@
           </div>
         </div>
         <div class="line">
-          <button class="btn primary" type="button" data-act="copy-svg" data-tip="Copy SVG" aria-label="Copy SVG"><svg viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="1.6"/><path d="M10.5 3.5v-.4A1.6 1.6 0 0 0 8.9 1.5H4.1A1.6 1.6 0 0 0 2.5 3.1v4.8a1.6 1.6 0 0 0 1.6 1.6h.4"/></svg> SVG</button>
-          <button class="btn" type="button" data-act="download-svg" data-tip="Download SVG" aria-label="Download SVG"><svg viewBox="0 0 16 16"><path d="M8 2.5v8M4.8 7.5L8 10.7l3.2-3.2M2.5 13.5h11"/></svg> SVG</button>
-          <button class="btn" type="button" data-act="download-png" data-tip="Download PNG" aria-label="Download PNG"><svg viewBox="0 0 16 16"><path d="M8 2.5v8M4.8 7.5L8 10.7l3.2-3.2M2.5 13.5h11"/></svg> PNG</button>
+          <div class="seg" role="group" aria-label="Colour style">
+            <button type="button" data-palette-set="blueprint" data-tip="Blueprint" aria-label="Blueprint"><span class="sw sw-blueprint"></span></button>
+            <button type="button" data-palette-set="mono" data-tip="Black and white" aria-label="Black and white"><span class="sw sw-mono"></span></button>
+            <button type="button" data-palette-set="red" data-tip="TomTom red" aria-label="TomTom red"><span class="sw sw-red"></span></button>
+          </div>
+        </div>
+        </div>
+        <div class="group share">
+        <div class="line">
+          <button class="btn primary grow" type="button" data-act="copy-svg" data-tip="Copy SVG" aria-label="Copy SVG"><svg viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="1.6"/><path d="M10.5 3.5v-.4A1.6 1.6 0 0 0 8.9 1.5H4.1A1.6 1.6 0 0 0 2.5 3.1v4.8a1.6 1.6 0 0 0 1.6 1.6h.4"/></svg> Copy SVG</button>
+          <button class="btn" type="button" data-act="copy-link" data-tip="Copy link to this view" aria-label="Copy link to this view"><svg viewBox="0 0 16 16"><path d="M6.8 9.2a2.8 2.8 0 0 0 4 0l2-2a2.8 2.8 0 0 0-4-4l-.6.6M9.2 6.8a2.8 2.8 0 0 0-4 0l-2 2a2.8 2.8 0 0 0 4 4l.6-.6"/></svg></button>
         </div>
         <div class="line">
-          <button class="btn" type="button" data-act="copy-alt" data-tip="Copy alt text" aria-label="Copy alt text"><svg viewBox="0 0 16 16"><path d="M2.5 4h11M2.5 8h11M2.5 12h7"/></svg> Alt</button>
-          <button class="btn" type="button" data-act="copy-link" data-tip="Copy link to this view" aria-label="Copy link to this view"><svg viewBox="0 0 16 16"><path d="M6.8 9.2a2.8 2.8 0 0 0 4 0l2-2a2.8 2.8 0 0 0-4-4l-.6.6M9.2 6.8a2.8 2.8 0 0 0-4 0l-2 2a2.8 2.8 0 0 0 4 4l.6-.6"/></svg> Link</button>
+          <button class="btn grow" type="button" data-act="download-svg" data-tip="Download SVG" aria-label="Download SVG"><svg viewBox="0 0 16 16"><path d="M8 2.5v8M4.8 7.5L8 10.7l3.2-3.2M2.5 13.5h11"/></svg> SVG</button>
+          <button class="btn grow" type="button" data-act="download-png" data-tip="Download PNG" aria-label="Download PNG"><svg viewBox="0 0 16 16"><path d="M8 2.5v8M4.8 7.5L8 10.7l3.2-3.2M2.5 13.5h11"/></svg> PNG</button>
+        </div>
         </div>
       </div>
     </div>
@@ -262,6 +296,20 @@ function setPageTheme(t) {
 document.querySelectorAll("[data-page-theme]").forEach((b) => b.addEventListener("click", () => setPageTheme(b.dataset.pageTheme)));
 setPageTheme(pageTheme);
 
+/* ---------- colour style: blueprint, black and white, TomTom red ---------- */
+const PALETTES = ["blueprint", "mono", "red"];
+let palette = "blueprint";
+try { palette = localStorage.getItem("docs-ill-palette") || palette; } catch {}
+function setPalette(p) {
+  if (!PALETTES.includes(p)) return;
+  palette = p;
+  document.documentElement.dataset.palette = p;
+  document.querySelectorAll("[data-palette-set]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.paletteSet === p)));
+  try { localStorage.setItem("docs-ill-palette", p); } catch {}
+  if (modal.open) render();
+}
+document.querySelectorAll("[data-palette-set]").forEach((b) => b.addEventListener("click", () => setPalette(b.dataset.paletteSet)));
+
 /* ---------- card size, remembered per viewer ---------- */
 const prefs = { density: "comfortable" };
 try { Object.assign(prefs, JSON.parse(localStorage.getItem("docs-ill-grid") || "{}")); } catch {}
@@ -285,15 +333,17 @@ function toast(msg) {
 
 /* ---------- modal ---------- */
 const modal = document.getElementById("modal");
+setPalette(palette);
 const state = { i: 0, theme: "light", view: "live", live: null };
 /* The open view lives in the address, so a link opens on it: #fig=<slug>&theme=<light|dark>&view=<live|static> */
 function writeHash() {
-  const q = new URLSearchParams({ fig: INDEX[state.i].slug, theme: state.theme, view: state.view });
+  const q = new URLSearchParams({ fig: INDEX[state.i].slug, theme: state.theme, view: state.view, palette });
   history.replaceState(null, "", "#" + q.toString().replace(/%2F/g, "/"));
 }
 function readHash() {
   const q = new URLSearchParams(location.hash.slice(1)), i = INDEX.findIndex((e) => e.slug === q.get("fig"));
   if (i < 0) { if (modal.open) modal.close(); return; }
+  if (q.get("palette")) setPalette(q.get("palette"));
   openModal(i, { theme: q.get("theme"), view: q.get("view") });
 }
 async function render() {
@@ -352,7 +402,7 @@ async function copy(text, what) {
   catch { toast("Copy is blocked here; use Download instead"); }
 }
 document.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", async () => {
-  const { slug, alt } = INDEX[state.i], name = `${slug.replace("/", "-")}-${state.theme}`;
+  const { slug, alt } = INDEX[state.i], name = `${slug.replace("/", "-")}-${palette}-${state.theme}`;
   if (b.dataset.act === "copy-alt") return copy(alt, "Alt text");
   if (b.dataset.act === "copy-link") { writeHash(); return copy(location.href, "Link"); }
   const svg = await restSVG(slug, state.theme);
