@@ -1,8 +1,8 @@
 /**
  * Traffic incident: a short stretch of two-lane road, its lanes split by a
  * dashed line, and in the near lane a car broken down askew, a traffic cone
- * on the road behind it, one small cloud of smoke over its bonnet. The cone
- * carries the bright edge, at rest and under the pointer: it is the mark of
+ * on the road behind it, one small cloud of smoke over its bonnet. The cone,
+ * its body and its foot, carries the bright edge, at rest and under the pointer: it is the mark of
  * the hazard, and it stands clear of the car. When the pointer comes over the
  * road the smoke breathes:
  * puff after puff starts small on the bonnet, grows as it rises and drifts
@@ -59,7 +59,10 @@ function mount({ stage, svg, read }, value) {
   // the cone, behind the car: a square foot, a body tapering to its tip, a band round it
   const [x, y] = CONE, ringOf = (r) => circ(r, 24).map((q) => ({ ...q, u: q.u + x, v: q.v + y }));
   const coneG = mk("g", {}, g);
-  put(solid(coneG), prism(P, front, ...rings(x - CB - 1.6, y - CB - 1.6, x + CB + 1.6, y + CB + 1.6, 2, 0.8), 0, 1.6));
+  // the cone's foot carries the bright edge with its body: one highlight, the whole cone
+  const coneFoot = solid(coneG);
+  put(coneFoot, prism(P, front, ...rings(x - CB - 1.6, y - CB - 1.6, x + CB + 1.6, y + CB + 1.6, 2, 0.8), 0, 1.6));
+  coneFoot.sil.classList.add("hi");
   mk("path", { class: "sil hi", d: poly(hull(ringAt(P, ringOf(CB), 1.6).concat([P(x, y, CH)]))) }, coneG);
   mk("path", { class: "nf lo", d: open(ringAt(P, run(ringOf(CB * 0.55), front), CH * 0.45)) }, coneG);
 
