@@ -11,6 +11,8 @@
  * The pattern: one of many, and a flow while chosen. The hit test is the
  * distance to each road's middle on the tile's plane, which never moves; the
  * flow runs only while a road is chosen, and stands still for reduced motion.
+ * Let go, the flow runs on for a second, slowing, to the rest phase, and the
+ * main road's dashes stand still again where they started.
  */
 const {
   Cam, clamp, facing, fit, open, prism, proj, reducedMotion, rings, unproj,
@@ -95,20 +97,46 @@ function mount({ stage, svg, read }, value) {
     rd.flow.setAttribute("d", d);
   }
 
-  let act = null, phase = 6;
-  const B = register(stage, (dt) => {
-    if (act === null || act < 0 || reducedMotion()) return false;
-    phase += speed * dt;
-    drawFlow(act, phase);
+  // REST is the phase the dashes stand at, at rest; any phase a whole EVERY from it looks the same.
+  // Let go, the flow always takes GLIDE ms to come to rest, easing out from about its own speed.
+  const REST = 6, GLIDE = 1000;
+  let act = null, phase = REST, settling = -1, from = 0, to = 0, t0 = 0;
+  const B = register(stage, (dt, now) => {
+    if (reducedMotion()) return false;
+    if (act !== null && act >= 0) { phase += speed * dt; drawFlow(act, phase); return true; }
+    if (settling < 0) return false;
+    const f = clamp((now - t0) / GLIDE, 0, 1);
+    phase = from + (to - from) * (1 - (1 - f) ** 3);
+    if (f >= 1) { phase = REST; settle(); return false; }
+    drawFlow(settling, phase);
     return true;
   });
   bag.add(B.unregister);
 
+  /** The rest pose: the main road's dashes still, at REST, the others gone. */
+  function settle() {
+    settling = -1;
+    roads.forEach((rd, i) => drawFlow(i, i === 0 ? REST : null));
+  }
+
   function setActive(a) {
     if (a === act) return;
+    const was = act;
     act = a;
-    const lit = a < 0 ? 0 : a;
-    roads.forEach((rd, i) => { rd.kerbs.setAttribute("class", i === lit && a >= 0 ? "nf sil" : "nf"); drawFlow(i, i === lit ? phase : null); });
+    roads.forEach((rd, i) => rd.kerbs.setAttribute("class", i === a ? "nf sil" : "nf"));
+    if (a >= 0) {
+      settling = -1;
+      roads.forEach((rd, i) => drawFlow(i, i === a ? phase : null));
+    } else if (was !== null && was >= 0 && !reducedMotion()) {
+      // an ease-out cubic starts at three times its average pace, so to start at the flow's own speed it runs
+      // speed × GLIDE / 3 on; take the phase that looks like rest nearest that, never less than half a gap on
+      settling = was; from = phase; t0 = performance.now();
+      let left = (((REST - phase) % EVERY) + EVERY) % EVERY;
+      const want = (speed * GLIDE) / 3000;
+      while (left < Math.max(want - EVERY / 2, EVERY / 2)) left += EVERY;
+      to = phase + left;
+    }
+    else { phase = REST; settle(); }
     read.textContent = a < 0 ? "rest" : `road ${a + 1}`;
     B.wake();
   }
