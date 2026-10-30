@@ -5,8 +5,9 @@
  * its head, its point in the ground. The main road takes two turns on the
  * left; the alternative swings wide round the right. The road the pointer is
  * on lifts, and the route draws along it, bright, from the start to the pin;
- * the other road settles flat, its route wound back. The puck and pin stay
- * where they are and keep the silhouette weight always, so the ends outweigh
+ * the other road settles flat, its route wound back. The pin rides on the
+ * raised road's end, rising and settling with it. The puck and pin stay
+ * where they are on the map and keep the silhouette weight always, so the ends outweigh
  * every road but the chosen one. At rest the main road sits a little raised,
  * its route drawn. The slider is the lift.
  *
@@ -61,7 +62,7 @@ function mount({ stage, svg, read }, value) {
   const C = Cam(45, 0.5, 1.9);
   const shapes = ROADS.map(outline);
   const ext = shapes.flat().map((p) => [p[0], p[1], 0]);
-  fit(C, [...ext, [O[0] + PKR, O[1] + PKR, 0], [D[0], D[1], PIN_H], [-50, 14, 14 + TH]], 200, 166);
+  fit(C, [...ext, [O[0] + PKR, O[1] + PKR, 0], [D[0], D[1], PIN_H + 14 + TH], [-50, 14, 14 + TH]], 200, 166);
   const P = proj(C), front = facing(C);
 
   // The pin's plate faces the viewer: across it is world (1, -1), through it (1, 1).
@@ -74,8 +75,11 @@ function mount({ stage, svg, read }, value) {
   // The destination: a pin, a silhouette of both faces, the front face as its crease, a hole in its head.
   // Its silhouette is stroked again over the crease, so the pin keeps the full silhouette weight all round.
   const pinS = solid(pin), pinEdge = mk("path", { class: "nf sil" }, pin), hole = mk("path", { class: "nf sil" }, pin);
-  {
-    const z = 0;
+  let pinDrawn = NaN;
+  /** The pin stood at height z: on the raised road's end, its foot on the road's top. */
+  function drawPin(z) {
+    if (z === pinDrawn) return;
+    pinDrawn = z;
     const edge = poly(hull(ps.map((p) => pw(p[0], p[1], -PIN_T, z)).concat(ps.map((p) => pw(p[0], p[1], 0, z)))));
     put(pinS, { sil: edge, crease: poly(ps.map((p) => pw(p[0], p[1], 0, z))) });
     pinEdge.setAttribute("d", edge);
@@ -128,7 +132,9 @@ function mount({ stage, svg, read }, value) {
 
   const B = register(stage, (_dt, now) => {
     let moving = false;
-    for (const r of roads) { draw(r, tval(r.z, now), tval(r.k, now)); if (!tdone(r.z, now) || !tdone(r.k, now)) moving = true; }
+    let top = 0;
+    for (const r of roads) { const z = tval(r.z, now); top = Math.max(top, z); draw(r, z, tval(r.k, now)); if (!tdone(r.z, now) || !tdone(r.k, now)) moving = true; }
+    drawPin(top + TH);
     return moving;
   });
   bag.add(B.unregister);
@@ -167,7 +173,7 @@ function mount({ stage, svg, read }, value) {
 
 hairline({
   name: "routing",
-  means: "Two roads from a start puck to a destination pin: the one under the pointer lifts and the route draws along it.",
+  means: "Two roads from a start puck to a destination pin: the one under the pointer lifts, the pin with it, and the route draws.",
   rules: [1, 4, 5, 8],
   range: [6, 10, 14],
   tour: [[250, 180], [150, 150], [262, 120], null],

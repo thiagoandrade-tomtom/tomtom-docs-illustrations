@@ -1,5 +1,5 @@
 [
-  {"slug": "map-layers", "name": "Layer Stack", "for": "Map layers", "alt": "Three map sheets stacked above one another: a base map with a river and a park, a sheet of roads, and a sheet of map pins on top."},
+  {"slug": "map-layers", "name": "Layer Stack", "for": "Map layers", "alt": "Three map sheets stacked above one another: a field of data points, the road network, and the finished map with a river, a park, a route and pins."},
   {"slug": "traffic", "name": "Rush Hour", "for": "Traffic", "alt": "Three cars stopped in a queue on a road, with empty road behind them."},
   {"slug": "search", "name": "Lens and Pin", "for": "Search", "alt": "A magnifying glass held over a street map, with a map pin rising up through the lens."},
   {"slug": "map-data", "name": "Live Streets", "for": "Map Data", "alt": "A map tile with a connected network of roads, low buildings, and traffic dashes on the main road."},
@@ -8,7 +8,7 @@
   {"slug": "mcps", "name": "Connected Globe", "for": "MCPs", "alt": "A globe with service points on it, linked by arcs to one hub, and two AI sparks beside it."},
   {"slug": "apis", "name": "Tile Service", "for": "APIs", "alt": "A grid of map tiles with one missing, a server just above the empty slot, linked to two other services."},
   {"slug": "automotive", "name": "Round the Corner", "for": "Automotive", "alt": "A car on a street map seen from above, with a route round the corner to a destination pin."},
-  {"slug": "routing", "name": "Route Drawn", "for": "Routing", "alt": "Two roads from a start point to a destination pin, the route drawn along the chosen one."},
+  {"slug": "routing", "name": "Route Drawn", "for": "Routing", "alt": "Two roads from a start point to a destination pin, the chosen one raised with the pin and the route drawn along it."},
   {"slug": "usecases/sport", "name": "Lap Replay", "for": "Activity tracker", "alt": "A running track with a runner on it, the stretch already run lit."},
   {"slug": "usecases/poi", "name": "Corner Shop", "for": "Discover places", "alt": "A shop on a street corner with a map pin over its roof."},
   {"slug": "usecases/ev", "name": "Charge Point", "for": "Find an EV charger", "alt": "A lightning bolt hovering over a round charging pad."},
