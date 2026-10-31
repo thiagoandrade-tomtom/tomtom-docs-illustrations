@@ -11,6 +11,7 @@
   {"slug": "automotive", "name": "Round the Corner", "for": "Automotive", "alt": "A car on a street map seen from above, with a route round the corner to a destination pin."},
   {"slug": "automotive-ui", "name": "Modular Cockpit", "for": "Automotive UI", "alt": "A tablet lying on a table, its interface built of modules set into slots: a map with a route from a chevron to a pin, lane guidance and a trip panel."},
   {"slug": "parking", "name": "Free Bay", "for": "Parking availability", "alt": "A car parked in its bay, and beside it a free bay with a parking marker, a P, floating over it."},
+  {"slug": "dispatch", "name": "Load Order", "for": "Live delivery dispatch", "alt": "A delivery van with its back doors open and three parcels queued behind it, each marked with dots for its stop, their order shuffling as dispatch updates it."},
   {"slug": "routing", "name": "Route Drawn", "for": "Routing", "alt": "Two roads from a start point to a destination pin, the chosen one raised with the pin and the route drawn along it."},
   {"slug": "navigation", "name": "Pocket Navigator", "for": "Navigation SDK", "alt": "A phone lying screen up with a navigation app: a route runs along the map's streets from a position puck to a destination pin."},
   {"slug": "usecases/sport", "name": "Lap Replay", "for": "Activity tracker", "alt": "A map with a park and its pines, and a run along the street round it, the runner a puck and the stretch already run lit."},
