@@ -7,6 +7,7 @@
   {"slug": "agentic-map", "name": "Ask the Way", "for": "Agentic Map", "alt": "A chat bubble whose tail is a map pin, standing on a street map, with an AI spark at its corner and a dashed route to a destination."},
   {"slug": "agentic-search", "name": "Ask for Places", "for": "Agentic Map Search", "alt": "A chat bubble whose tail is a map pin, standing on a street map, with an AI spark at its corner and map pins rising from places, one of them chosen."},
   {"slug": "mcps", "name": "Connected Globe", "for": "MCPs", "alt": "A globe with service points on it, linked by arcs to one hub, and two AI sparks beside it."},
+  {"slug": "global-data", "name": "Dotted Earth", "for": "Global data mapping", "alt": "A globe whose continents are drawn in fine dots, Europe and Africa facing the viewer, a scatter of dots on the land lit where data is coming in."},
   {"slug": "apis", "name": "Tile Service", "for": "APIs", "alt": "A grid of map tiles with one missing, a server just above the empty slot, linked to two other services."},
   {"slug": "automotive", "name": "Round the Corner", "for": "Automotive", "alt": "A car on a street map seen from above, with a route round the corner to a destination pin."},
   {"slug": "automotive-ui", "name": "Modular Cockpit", "for": "Automotive UI", "alt": "A tablet lying on a table, its interface built of modules set into slots: a map with a route from a chevron to a pin, lane guidance and a trip panel."},
