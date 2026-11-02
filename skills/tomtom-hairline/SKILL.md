@@ -52,7 +52,7 @@ The gallery already has these, so a new one should not repeat them: Layer Stack 
 Hour (traffic), Hazard Ahead (traffic incidents), Lens and Pin (search), Live Streets (map data), Ask
 the Way (agentic map), Ask for Places (agentic search), Connected Globe (MCPs), Dotted Earth (global
 data), Dropped Pin (map markers), Tile Service (APIs), Round the Corner (automotive), Modular Cockpit (automotive UI), Probable Path (ADAS, most probable path), Free Bay
-(parking), Load Order (delivery dispatch), Route Drawn (routing), Pocket Navigator (navigation SDK),
+(parking), Load Order (delivery dispatch), Route Drawn (routing), Route Matrix (matrix routing), Pocket Navigator (navigation SDK),
 Lap Replay (activity tracker), Corner Shop (places), Charge Point (EV charger), Heat Sun
 (temperature), Long Haul (EV trip), Walking Ring (neighbourhood), Doorstep (package tracking), Two
 Roads (plan a route), Shared Bay (shared mobility), Geofence (fleet), Neighbourhood Moods (density),

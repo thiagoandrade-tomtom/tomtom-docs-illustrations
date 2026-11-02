@@ -16,6 +16,7 @@
   {"slug": "parking", "name": "Free Bay", "for": "Parking availability", "alt": "A car parked in its bay, and beside it a free bay with a parking marker, a P, floating over it."},
   {"slug": "dispatch", "name": "Load Order", "for": "Live delivery dispatch", "alt": "A delivery van with its back doors open and three parcels queued behind it, each marked with dots for its stop, their order shuffling as dispatch updates it."},
   {"slug": "routing", "name": "Route Drawn", "for": "Routing", "alt": "Two roads from a start point to a destination pin, the chosen one raised with the pin and the route drawn along it."},
+  {"slug": "matrix", "name": "Route Matrix", "for": "Matrix Routing API", "alt": "A street grid with two origins on one side, each routed along the streets to two stop pins of its own, the first origin's routes lit."},
   {"slug": "navigation", "name": "Pocket Navigator", "for": "Navigation SDK", "alt": "A phone lying screen up with a navigation app: a route runs along the map's streets from a position puck to a destination pin."},
   {"slug": "usecases/sport", "name": "Lap Replay", "for": "Activity tracker", "alt": "A map with a park and its pines, and a run along the street round it, the runner a puck and the stretch already run lit."},
   {"slug": "usecases/poi", "name": "Corner Shop", "for": "Discover places", "alt": "A shop on a street corner with a map pin over its roof."},
