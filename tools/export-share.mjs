@@ -74,6 +74,7 @@ for (const { slug, name, for: forWhat, alt } of index) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(alt)}">
 <meta property="og:type" content="website">
