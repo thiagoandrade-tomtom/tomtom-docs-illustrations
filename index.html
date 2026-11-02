@@ -26,6 +26,9 @@
     --text: #000000; --muted: #5C5C5C; --rule: #E5E5E5; --rule-hi: #CCCCCC; --scrim: rgba(17, 12, 34, .45);
     --e2: 0 2px 4px -2px rgba(17, 12, 34, .12); --e3: 0 6px 16px -6px rgba(17, 12, 34, .10); --e6: 0 32px 32px -12px rgba(17, 12, 34, .12);
   }
+  /* the browser's own controls follow the theme too: the search's clear button, the scrollbars */
+  :root { color-scheme: light; }
+  [data-theme="dark"] { color-scheme: dark; }
   [data-theme="dark"] {
     --page: #0C0C12; --card: #0C0C12; --ground: #0C0C12; --chip: #292930;
     --text: #FFFFFF; --muted: rgba(255, 255, 255, .72); --rule: rgba(255, 255, 255, .16); --rule-hi: rgba(255, 255, 255, .24); --scrim: rgba(0, 0, 0, .6);
@@ -66,15 +69,41 @@
   @keyframes mini-in { from { opacity: 0; translate: -4px 0; } }
   @media (prefers-reduced-motion: reduce) { .bar.stuck .mini { animation: none; } }
   /* on a phone the bar wraps to several rows, too tall to hold over the grid: it scrolls away with the header */
-  @media (max-width: 760px) { .bar { position: static; } .bar.stuck .mini { display: none; } }
+  /* on a phone the bar wraps to several rows, too tall to hold over the grid: it scrolls away with the header,
+     and once it is gone a mini bar comes down in its place, with the search, the colour and the theme */
+  .minibar { display: none; }
+  @media (max-width: 760px) {
+    .bar { position: static; }
+    .bar.stuck .mini { display: none; }
+    .minibar { display: flex; position: fixed; z-index: 10; top: 8px; left: 16px; right: 16px; gap: 8px; align-items: center; padding: 8px;
+      background: color-mix(in srgb, var(--card) 88%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--rule); border-radius: 12px; box-shadow: var(--e3);
+      translate: 0 calc(-100% - 16px); transition: translate .25s ease-out; }
+    /* held down while its search is in use, though the results may be too few to scroll */
+    .minibar.on, .minibar.searching { translate: 0 0; }
+    /* the search takes the room the colour and theme leave it */
+    .minibar .search { flex: 1; min-width: 0; padding: 0 10px; }
+    .minibar .search input { width: 100%; min-width: 0; }
+    /* one column of cards on a phone, whatever the card size: the size control has nothing to change here */
+    .bar .seg[aria-label="Card size"] { display: none; }
+    /* the bar in two rows: the search across the whole first, the colour and theme on the left of the second,
+       Make yours on its right */
+    .bar .find, .bar .tools { flex: 1 1 100%; }
+    .bar .search { flex: 1; }
+    .bar .search input { width: 100%; min-width: 0; }
+    .bar #make-open { margin-left: auto; }
+    main#grid { grid-template-columns: 1fr; }
+    main#grid .card .alt { display: -webkit-box; }
+  }
+  @media (max-width: 760px) and (prefers-reduced-motion: reduce) { .minibar { transition: none; } }
   .find { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .search { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; background: var(--chip); border-radius: 8px; color: var(--muted); }
   .search svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; flex: none; }
   .search input { border: 0; background: transparent; color: var(--text); font: inherit; font-size: 13px; width: 160px; outline: none; }
   .search:focus-within { outline: 2px solid var(--bright); outline-offset: 1px; }
   /* the bar's tips open below it, so they stay on screen when it is held at the top */
-  .bar [data-tip]::after { bottom: auto; top: calc(100% + 6px); translate: -50% -4px; }
-  .bar [data-tip]:hover::after, .bar [data-tip]:focus-visible::after { translate: -50% 0; }
+  .bar [data-tip]::after, .minibar [data-tip]::after { bottom: auto; top: calc(100% + 6px); translate: -50% -4px; }
+  .bar [data-tip]:hover::after, .bar [data-tip]:focus-visible::after, .minibar [data-tip]:hover::after, .minibar [data-tip]:focus-visible::after { translate: -50% 0; }
   .card[hidden] { display: none; }
   .empty { max-width: 1200px; margin: 0 auto; padding: 48px 24px; text-align: center; color: var(--muted); }
   /* the signature at the foot: the TomTom pin, a rule and the word Design, with a quiet beta tag */
@@ -102,18 +131,11 @@
   /* the whole card opens the figure: its name is the button, stretched over the card */
   .card .open { all: unset; display: flex; align-items: center; gap: 8px; padding: 0 6px; min-width: 0; }
   .card .open::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
-  /* where there is no hover, a play button runs the card's story; with a mouse, the hover does */
   .thumb { position: relative; }
-  .play { position: absolute; z-index: 1; right: 8px; bottom: 8px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--rule); cursor: pointer;
-    background: color-mix(in srgb, var(--card) 90%, transparent); color: var(--text); display: grid; place-items: center; padding: 0; }
-  .play svg { width: 14px; height: 14px; fill: currentColor; display: block; }
-  .play .pause, .play[aria-pressed="true"] .go-play { display: none; }
-  .play[aria-pressed="true"] .pause { display: block; }
-  .play:focus-visible { outline: 2px solid var(--bright); outline-offset: 2px; }
-  @media (hover: hover) and (pointer: fine) { .play { display: none; } }
   /* the card says it opens by answering the pointer: its edge firms up and it lifts a little, in neutral grey, so the figure keeps the only colour */
   .card { transition: border-color .2s, box-shadow .2s, translate .2s; }
-  .card:hover { border-color: var(--rule-hi); box-shadow: var(--e3); translate: 0 -2px; }
+  /* only where there is a real hover: a tap would leave the card lifted */
+  @media (hover: hover) { .card:hover { border-color: var(--rule-hi); box-shadow: var(--e3); translate: 0 -2px; } }
   .card:active { translate: 0 0; box-shadow: none; }
   @media (prefers-reduced-motion: reduce) { .card:hover { translate: none; } }
   /* every card the same height: the name on one line, the alt text on two, both cut with an ellipsis */
@@ -153,7 +175,7 @@
   .altbox .alt { flex: 1; min-width: 0; }
   .btn.small { height: 28px; min-width: 28px; padding: 0 6px; flex: none; }
   .btn.grow { flex: 1; }
-  .side .line { display: flex; gap: 8px; align-items: center; }
+  .side .line { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .seg button svg, .btn svg, .icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; display: block; }
   .seg button:has(svg) { padding: 6px 9px; }
   .btn { border: 1px solid var(--rule); background: var(--card); border-radius: 8px; height: 34px; min-width: 34px; padding: 0 9px; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
@@ -203,10 +225,22 @@
 <header>
   <div class="intro">
     <h1>TomTom Docs illustrations <span class="beta">Beta</span></h1>
-    <p>Hover a card, or press its play button, to see its story. Open one to see it large, switch light and dark, and copy or download the SVG.</p>
+    <p>Hover a card to see its story; on a phone, the card in view plays it. Open one to see it large, switch light and dark, and copy or download the SVG.</p>
   </div>
 </header>
 <div class="sentinel" id="sentinel"></div>
+<div class="minibar" id="minibar">
+  <label class="search"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.4 10.4l3.1 3.1"/></svg><input id="q2" type="search" placeholder="Search" aria-label="Search illustrations" autocomplete="off"></label>
+  <div class="seg" role="group" aria-label="Colour style">
+      <button type="button" data-palette-set="blueprint" data-tip="Blueprint" aria-label="Blueprint"><span class="sw sw-blueprint"></span></button>
+      <button type="button" data-palette-set="mono" data-tip="Black and white" aria-label="Black and white"><span class="sw sw-mono"></span></button>
+      <button type="button" data-palette-set="red" data-tip="TomTom red" aria-label="TomTom red"><span class="sw sw-red"></span></button>
+    </div>
+  <div class="seg" role="group" aria-label="Page theme">
+      <button type="button" data-page-theme="light" aria-pressed="true" data-tip="Light" aria-label="Light"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg></button>
+      <button type="button" data-page-theme="dark" aria-pressed="false" data-tip="Dark" aria-label="Dark"><svg viewBox="0 0 16 16"><path d="M13.2 10.2A5.6 5.6 0 0 1 5.8 2.8a5.6 5.6 0 1 0 7.4 7.4z"/></svg></button>
+    </div>
+</div>
 <div class="bar" id="bar">
   <div class="find">
     <span class="mini" aria-hidden="true">Docs illustrations <span class="beta">Beta</span></span>
@@ -264,8 +298,6 @@
             <button type="button" data-view-set="live" data-tip="Animated" aria-label="Animated"><svg viewBox="0 0 16 16"><path d="M5 3.2v9.6L12.6 8z"/></svg></button>
             <button type="button" data-view-set="static" data-tip="Static SVG" aria-label="Static SVG"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="2"/><path d="M2.5 11l3.5-3.5 3 3 2-2 2.5 2.5"/></svg></button>
           </div>
-        </div>
-        <div class="line">
           <div class="seg" role="group" aria-label="Colour style">
             <button type="button" data-palette-set="blueprint" data-tip="Blueprint" aria-label="Blueprint"><span class="sw sw-blueprint"></span></button>
             <button type="button" data-palette-set="mono" data-tip="Black and white" aria-label="Black and white"><span class="sw sw-mono"></span></button>
@@ -611,35 +643,27 @@ document.getElementById("mk-copy").addEventListener("click", () => copy(document
     FIGS.set(slug, fig);
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `<div class="thumb"><div class="hl-stage"></div><button class="play" type="button" aria-pressed="false"><svg class="go-play" viewBox="0 0 14 14"><path d="M4 2.5v9l7.5-4.5z"/></svg><svg class="pause" viewBox="0 0 14 14"><rect x="3.5" y="3" width="2.4" height="8" rx=".6"/><rect x="8.1" y="3" width="2.4" height="8" rx=".6"/></svg></button></div>`
+    card.innerHTML = `<div class="thumb"><div class="hl-stage"></div></div>`
       + `<button class="open" type="button"><span class="name"></span></button><span class="alt"></span>`;
     card.querySelector(".name").textContent = name;
     card.querySelector(".alt").textContent = alt;
-    const open = card.querySelector(".open"), play = card.querySelector(".play");
+    const open = card.querySelector(".open");
     open.setAttribute("aria-label", `Open ${name}`);
-    play.setAttribute("aria-label", `Play ${name}`);
     grid.appendChild(card);
     const m = mountStage(card.querySelector(".hl-stage"), fig);
     if (m) {
-      // a mouse plays the story on hover; a touch would open the card, so it gets the play button instead
+      // a mouse plays the story on hover; on a touch screen the card in view plays (see below)
       card.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") m.drive.start(); });
       card.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") m.drive.stop(); });
       open.addEventListener("focus", () => m.drive.start());
       open.addEventListener("blur", () => m.drive.stop());
-      play.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const on = play.getAttribute("aria-pressed") !== "true";
-        // one story at a time: starting this one stops any other
-        if (on) CARDS.forEach((c) => c.stop?.());
-        on ? m.drive.start() : m.drive.stop();
-        play.setAttribute("aria-pressed", String(on));
-      });
-    } else play.remove();
+    }
     card.addEventListener("click", () => openModal(i));
-    CARDS.push({ card, i, e: INDEX[i], stop: m && (() => { m.drive.stop(); play.setAttribute("aria-pressed", "false"); }) });
+    CARDS.push({ card, i, e: INDEX[i], drive: m?.drive });
   }
   // a link with #fig=… opens on that figure
   arrange();
+  autoplay();
   readHash();
 })();
 
@@ -656,8 +680,30 @@ function arrange() {
   ORDER = (shown.length ? shown : sorted).map((c) => c.i);
   document.getElementById("empty").hidden = shown.length > 0;
 }
-document.getElementById("q").addEventListener("input", (e) => { pick.q = e.target.value.trim(); arrange(); });
+const q1 = document.getElementById("q"), q2 = document.getElementById("q2"), minibar = document.getElementById("minibar");
+// the page's search and the mini bar's are one search: typing in either fills the other
+[q1, q2].forEach((q) => q.addEventListener("input", () => { pick.q = q.value.trim(); (q === q1 ? q2 : q1).value = q.value; arrange(); }));
+q2.addEventListener("focus", () => minibar.classList.add("searching"));
+q2.addEventListener("blur", () => { if (!q2.value || !minibar.classList.contains("on")) minibar.classList.remove("searching"); });
+new IntersectionObserver(([en]) => minibar.classList.toggle("on", !en.isIntersecting && en.boundingClientRect.top < 0))
+  .observe(document.getElementById("bar"));
 // the bar turns into the header once it sticks: the sentinel above it has scrolled out of view
+/** On a touch screen there is no hover: the card most in view plays its story, one at a time. */
+function autoplay() {
+  if (!matchMedia("(hover: none)").matches) return;
+  const seen = new Map();
+  let playing = null;
+  const io = new IntersectionObserver((entries) => {
+    for (const en of entries) seen.set(en.target, en.intersectionRatio);
+    let best = null, top = 0.6;
+    for (const c of CARDS) { const r = seen.get(c.card) ?? 0; if (!c.card.hidden && r > top) { best = c; top = r; } }
+    if (best === playing) return;
+    playing?.drive?.stop();
+    playing = best;
+    playing?.drive?.start();
+  }, { threshold: [0, 0.6, 0.8, 1] });
+  CARDS.forEach((c) => io.observe(c.card));
+}
 new IntersectionObserver(([en]) => document.getElementById("bar").classList.toggle("stuck", !en.isIntersecting), { rootMargin: "-13px 0px 0px 0px" })
   .observe(document.getElementById("sentinel"));
 </script>
