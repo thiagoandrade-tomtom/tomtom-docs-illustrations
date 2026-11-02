@@ -25,6 +25,22 @@ lib/kernel.js         the hairline kernel the gallery and exporter load: a copy 
                       outside .claude/ so GitHub Pages serves it
 ```
 
+## Make your own
+
+The gallery's **Make yours** button walks anyone through it. The skill is
+`skills/tomtom-hairline/`: Hairline's engine, its process as `hairline.md`, and
+on top the TomTom style, the gallery's list, and `export.mjs`, which writes the
+rest pose as SVG and PNG in a format (`docs` 400×320, `square`, `landscape` 4:3,
+`portrait` 3:4, `wide` 16:9), a colour style and a theme. Install it in any
+agent that runs skills:
+
+```bash
+npx skills add thiagoandrade-tomtom/tomtom-docs-illustrations
+```
+
+It copies Hairline's files from `.claude/skills/hairline-create/`; when those
+change, copy them again.
+
 ## Add a section
 
 1. Ask Claude Code with `PROMPT.md`, the SECTION line filled in. It writes

@@ -45,6 +45,12 @@
   button { font: inherit; color: inherit; }
 
   header { max-width: 1200px; margin: 0 auto; padding: 32px 24px 8px; display: flex; gap: 16px; align-items: end; justify-content: space-between; flex-wrap: wrap; }
+  /* the signature at the foot: the TomTom pin, a rule and the word Design, with a quiet beta tag */
+  .brand { max-width: 1200px; margin: 0 auto; padding: 8px 24px 40px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--muted); font-size: 12.5px; }
+  .brand .logo { height: 16px; width: auto; display: block; }
+  .brand .bar { width: 1px; height: 12px; background: var(--rule); }
+  .brand .word { font-weight: 600; }
+  .brand .beta { font-size: 9.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--rule); border-radius: 999px; padding: 1px 6px; }
   h1 { margin: 0 0 4px; font-size: 20px; letter-spacing: -.01em; }
   header p { margin: 0; color: var(--muted); }
 
@@ -115,6 +121,28 @@
   .toast.on { opacity: 1; }
   .offstage { position: fixed; left: -10000px; top: 0; width: 400px; }
 
+  /* make yours: three steps, install, say what it is for, paste the prompt */
+  #make-open { background: var(--chip); border-color: transparent; color: var(--muted); height: 30px; font-size: 13px; }
+  #make-open:hover { color: var(--text); }
+  #make { max-width: min(520px, calc(100vw - 32px)); }
+  .make { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+  .make .head { display: flex; justify-content: space-between; align-items: center; }
+  .make h2 { margin: 0; font-size: 18px; }
+  .make p { margin: 0; color: var(--muted); font-size: 13px; }
+  /* each step its own row: a numbered disc on the left, the step under its title, a rule between steps */
+  .make ol { margin: 0; padding: 0; list-style: none; counter-reset: s; display: flex; flex-direction: column; }
+  .make li { counter-increment: s; position: relative; display: flex; flex-direction: column; gap: 10px; padding: 16px 0 16px 38px; border-top: 1px solid var(--rule); }
+  .make li:last-child { padding-bottom: 4px; }
+  .make li::before { content: counter(s); position: absolute; left: 0; top: 14px; width: 24px; height: 24px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 12px; font-weight: 600; color: var(--bright); background: color-mix(in srgb, var(--bright) 12%, var(--card)); }
+  .make li > b { font-size: 14px; line-height: 20px; }
+  .make .cmd, .make .prompt { display: flex; gap: 8px; align-items: flex-start; }
+  .make code, .make .prompt output { flex: 1; min-width: 0; background: var(--chip); border-radius: 8px; padding: 8px 10px; font: 12px/1.5 ui-monospace, Menlo, monospace; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .make input { height: 34px; border: 1px solid var(--rule); border-radius: 8px; background: var(--card); color: var(--text); padding: 0 10px; font: inherit; }
+  .make input:focus-visible { outline: 2px solid var(--bright); outline-offset: 1px; }
+  .make .seg { align-self: flex-start; flex-wrap: wrap; }
+  .make .line { display: flex; gap: 8px; flex-wrap: wrap; }
+
   @media (max-width: 760px) {
     .sheet { grid-template-columns: 1fr; height: auto; }
     .side { border-left: 0; border-top: 1px solid var(--rule); }
@@ -143,9 +171,11 @@
       <button type="button" data-page-theme="light" aria-pressed="true" data-tip="Light" aria-label="Light"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg></button>
       <button type="button" data-page-theme="dark" aria-pressed="false" data-tip="Dark" aria-label="Dark"><svg viewBox="0 0 16 16"><path d="M13.2 10.2A5.6 5.6 0 0 1 5.8 2.8a5.6 5.6 0 1 0 7.4 7.4z"/></svg></button>
     </div>
+    <button class="btn" type="button" id="make-open"><svg viewBox="0 0 16 16"><path d="M7 2.5c.4 2.6 1.4 3.6 4 4-2.6.4-3.6 1.4-4 4-.4-2.6-1.4-3.6-4-4 2.6-.4 3.6-1.4 4-4z"/><path d="M12.5 9.5c.2 1.2.8 1.8 2 2-1.2.2-1.8.8-2 2-.2-1.2-.8-1.8-2-2 1.2-.2 1.8-.8 2-2z"/></svg> Make yours</button>
   </div>
 </header>
 <main id="grid"></main>
+<footer class="brand" aria-label="TomTom Design"><svg class="logo" viewBox="3.4 0.6 12.5 21" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.62056 20.2788L11.8705 16.3926H7.37061L9.62056 20.2788Z" fill="#DF1B12"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.61998 12.193C7.92801 12.193 6.55158 10.8202 6.55158 9.13306C6.55158 7.44575 7.92801 6.073 9.61998 6.073C11.312 6.073 12.6884 7.44575 12.6884 9.13306C12.6884 10.8202 11.312 12.193 9.61998 12.193M9.61962 3.27832C6.38283 3.27832 3.74951 5.90438 3.74951 9.13224C3.74951 12.36 6.38283 14.986 9.61962 14.986C12.8564 14.986 15.4897 12.36 15.4897 9.13224C15.4897 5.90438 12.8564 3.27832 9.61962 3.27832" fill="#DF1B12"/></svg><span class="bar"></span><span class="word">Design</span><span class="beta">Beta</span></footer>
 
 <dialog id="modal" aria-labelledby="m-title">
   <div class="sheet">
@@ -195,9 +225,53 @@
           <button class="btn grow" type="button" data-act="download-svg" data-tip="Download SVG" aria-label="Download SVG"><svg viewBox="0 0 16 16"><path d="M8 2.5v8M4.8 7.5L8 10.7l3.2-3.2M2.5 13.5h11"/></svg> SVG</button>
           <button class="btn grow" type="button" data-act="download-png" data-tip="Download PNG" aria-label="Download PNG"><svg viewBox="0 0 16 16"><path d="M8 2.5v8M4.8 7.5L8 10.7l3.2-3.2M2.5 13.5h11"/></svg> PNG</button>
         </div>
+        <div class="line">
+          <button class="btn grow" type="button" id="m-make">Make one like this</button>
+        </div>
         </div>
       </div>
     </div>
+  </div>
+</dialog>
+<dialog id="make" aria-labelledby="mk-title">
+  <div class="make">
+    <div class="head">
+      <h2 id="mk-title">Make yours</h2>
+      <button class="icon" type="button" id="mk-close" aria-label="Close">✕</button>
+    </div>
+    <p>Draw your own illustration in this style, with any coding agent that runs skills: Claude Code, Codex, Cursor, Gemini CLI and the like.</p>
+    <ol>
+      <li><b>Install the skill, once</b>
+        <div class="cmd"><code id="mk-install">npx skills add thiagoandrade-tomtom/tomtom-docs-illustrations</code>
+          <button class="btn small" type="button" id="mk-copy-install" title="Copy command" aria-label="Copy command"><svg viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="1.6"/><path d="M10.5 3.5v-.4A1.6 1.6 0 0 0 8.9 1.5H4.1A1.6 1.6 0 0 0 2.5 3.1v4.8a1.6 1.6 0 0 0 1.6 1.6h.4"/></svg></button></div>
+      </li>
+      <li><b>Say what it is for, its shape and colour</b>
+        <input id="mk-for" type="text" placeholder="e.g. EV charging, Geocoding API, fleet tracking" aria-label="What it is for">
+        <div class="seg" role="group" aria-label="Format">
+          <button type="button" data-format="docs" aria-pressed="true">Docs 5:4</button>
+          <button type="button" data-format="square" aria-pressed="false">Square</button>
+          <button type="button" data-format="landscape" aria-pressed="false">4:3</button>
+          <button type="button" data-format="portrait" aria-pressed="false">3:4</button>
+          <button type="button" data-format="wide" aria-pressed="false">16:9</button>
+        </div>
+        <div class="line">
+          <div class="seg" role="group" aria-label="Colour style">
+            <button type="button" data-mk-palette="blueprint" data-tip="Blueprint" aria-label="Blueprint"><span class="sw sw-blueprint"></span></button>
+            <button type="button" data-mk-palette="mono" data-tip="Black and white" aria-label="Black and white"><span class="sw sw-mono"></span></button>
+            <button type="button" data-mk-palette="red" data-tip="TomTom red" aria-label="TomTom red"><span class="sw sw-red"></span></button>
+          </div>
+          <div class="seg" role="group" aria-label="Theme">
+            <button type="button" data-mk-theme="light" data-tip="Light" aria-label="Light"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg></button>
+            <button type="button" data-mk-theme="dark" data-tip="Dark" aria-label="Dark"><svg viewBox="0 0 16 16"><path d="M13.2 10.2A5.6 5.6 0 0 1 5.8 2.8a5.6 5.6 0 1 0 7.4 7.4z"/></svg></button>
+          </div>
+        </div>
+      </li>
+      <li><b>Paste this into your agent</b>
+        <div class="prompt"><output id="mk-prompt"></output></div>
+        <button class="btn primary" type="button" id="mk-copy">Copy prompt</button>
+      </li>
+    </ol>
+    <p>You get a live page, and SVG and PNG in your format, colour style and theme. The SVG pastes into Figma as vectors.</p>
   </div>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -437,6 +511,37 @@ document.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click
     img.src = url;
   }
 }));
+
+/* ---------- make yours: the prompt for the tomtom-hairline skill, from what it is for, its shape and the colours shown here ---------- */
+const make = document.getElementById("make"), mk = { format: "docs", palette: "blueprint", theme: "light", from: null };
+const RAW = "https://raw.githubusercontent.com/thiagoandrade-tomtom/tomtom-docs-illustrations/main/figures/";
+function makePrompt() {
+  const what = document.getElementById("mk-for").value.trim() || "[what it is for]";
+  let p = `Use the tomtom-hairline skill to make an illustration for: ${what}.\nFormat: ${mk.format}. Palette: ${mk.palette}. Theme: ${mk.theme}.`;
+  if (mk.from) p += `\nStart from the gallery's ${mk.from.name} (${mk.from.for}): ${RAW}${mk.from.slug}.js`;
+  document.getElementById("mk-prompt").textContent = p;
+  document.querySelectorAll("[data-format]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.format === mk.format)));
+  document.querySelectorAll("[data-mk-palette]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mkPalette === mk.palette)));
+  document.querySelectorAll("[data-mk-theme]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mkTheme === mk.theme)));
+}
+function openMake(from = null) {
+  // the colours start as the ones on show: the figure's when it is open, the page's otherwise
+  Object.assign(mk, { from, palette, theme: from ? state.theme : pageTheme });
+  document.getElementById("mk-title").textContent = from ? `Make one like ${from.name}` : "Make yours";
+  makePrompt();
+  if (modal.open) modal.close();
+  make.showModal();
+}
+document.getElementById("make-open").addEventListener("click", () => openMake());
+document.getElementById("m-make").addEventListener("click", () => openMake(INDEX[state.i]));
+document.getElementById("mk-close").addEventListener("click", () => make.close());
+make.addEventListener("click", (e) => { if (e.target === make) make.close(); });
+document.getElementById("mk-for").addEventListener("input", makePrompt);
+document.querySelectorAll("[data-format]").forEach((b) => b.addEventListener("click", () => { mk.format = b.dataset.format; makePrompt(); }));
+document.querySelectorAll("[data-mk-palette]").forEach((b) => b.addEventListener("click", () => { mk.palette = b.dataset.mkPalette; makePrompt(); }));
+document.querySelectorAll("[data-mk-theme]").forEach((b) => b.addEventListener("click", () => { mk.theme = b.dataset.mkTheme; makePrompt(); }));
+document.getElementById("mk-copy-install").addEventListener("click", () => copy(document.getElementById("mk-install").textContent, "Command"));
+document.getElementById("mk-copy").addEventListener("click", () => copy(document.getElementById("mk-prompt").textContent, "Prompt"));
 
 /* ---------- grid ---------- */
 (async () => {
