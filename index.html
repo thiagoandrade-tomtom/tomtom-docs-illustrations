@@ -16,17 +16,19 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://thiagoandrade-tomtom.github.io/tomtom-docs-illustrations/og/index.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3a9 9 0 0 0-9 9c0 7 9 17 9 17s9-10 9-17a9 9 0 0 0-9-9z' fill='none' stroke='%231988CF' stroke-width='2'/%3E%3Ccircle cx='16' cy='12' r='3' fill='%231988CF'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Space+Grotesk:wght@500;600&display=swap">
 <style>
-  /* Two surfaces, light and dark. A figure stands loose on its surface: its
-     plates take the surface colour (--ground), edge/mid/lo are the blue mixed
-     into it, and the bright stroke goes a step lighter on dark. */
+  /* Playbook's surfaces, light and dark: the page, the cards and the figures' ground are all s0, the floor;
+     chips and controls are s1; edges are its borders, b-lo at rest and b-med under the pointer. A figure stands
+     loose on its surface: its plates take the surface colour (--ground), edge/mid/lo are the ink mixed into it. */
   :root {
-    --page: #F5F6F8; --card: #FFFFFF; --text: #1B1C1F; --muted: #6B6F76; --rule: #E4E6EA;
-    --ground: #FFFFFF; --chip: #EEF0F3; --scrim: rgba(17, 19, 23, .45);
+    --page: #FFFFFF; --card: #FFFFFF; --ground: #FFFFFF; --chip: #F2F2F2;
+    --text: #000000; --muted: #5C5C5C; --rule: #E5E5E5; --rule-hi: #CCCCCC; --scrim: rgba(17, 12, 34, .45);
+    --e2: 0 2px 4px -2px rgba(17, 12, 34, .12); --e3: 0 6px 16px -6px rgba(17, 12, 34, .10); --e6: 0 32px 32px -12px rgba(17, 12, 34, .12);
   }
   [data-theme="dark"] {
-    --page: #0B0D10; --card: #14171C; --text: #E9EBEE; --muted: #8A8F98; --rule: #242830;
-    --ground: #14171C; --chip: #1C2027; --scrim: rgba(0, 0, 0, .6);
+    --page: #0C0C12; --card: #0C0C12; --ground: #0C0C12; --chip: #292930;
+    --text: #FFFFFF; --muted: rgba(255, 255, 255, .72); --rule: rgba(255, 255, 255, .16); --rule-hi: rgba(255, 255, 255, .24); --scrim: rgba(0, 0, 0, .6);
   }
   /* the colour style: the ink edge/mid/lo are mixed from, and the bright stroke on light and on dark */
   :root { --ink: #1988CF; --bright-l: #1988CF; --bright-d: #6CC0F5; --bright: var(--bright-l); }
@@ -34,41 +36,89 @@
   :root[data-palette="red"] { --ink: #DF1B12; --bright-l: #DF1B12; --bright-d: #FF6F61; }
   :root[data-theme="dark"] { --bright: var(--bright-d); }
   .surface-light { --ground: #FFFFFF; --bright: var(--bright-l); }
-  .surface-dark { --ground: #14171C; --bright: var(--bright-d); }
+  .surface-dark { --ground: #0C0C12; --bright: var(--bright-d); }
   .sw { width: 12px; height: 12px; border-radius: 50%; display: block; }
   .sw-blueprint { background: #1988CF; }
   .sw-mono { background: linear-gradient(135deg, #1B1C1F 50%, #E4E6EA 50%); box-shadow: inset 0 0 0 1px #9A9EA6; }
   .sw-red { background: #DF1B12; }
   .seg button:has(.sw) { padding: 7px 8px; }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  /* free stand-ins for the Playbook faces: Space Grotesk for names and titles, DM Sans (its own fallback for Proxima Nova) for reading */
+  :root { --f-title: "Space Grotesk", system-ui, sans-serif; --f-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif; }
+  body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.45 var(--f-body); }
   button { font: inherit; color: inherit; }
 
-  header { max-width: 1200px; margin: 0 auto; padding: 32px 24px 8px; display: flex; gap: 16px; align-items: end; justify-content: space-between; flex-wrap: wrap; }
+  /* the header on Playbook's 4px grid: 48 above, 32 between the intro and the bar, the bar 16 deep under a rule */
+  header { max-width: 1200px; margin: 0 auto; padding: 48px 24px 0; }
+  .intro { margin-bottom: 24px; }
+  /* one bar for finding and for viewing, held at the top as the grid scrolls: find on the left, view on the right */
+  .bar { position: sticky; top: 12px; z-index: 10; max-width: 1152px; margin: 0 auto; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+    padding: 8px; background: color-mix(in srgb, var(--card) 88%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--rule); border-radius: 12px; box-shadow: var(--e3); }
+  @media (max-width: 1200px) { .bar { margin: 0 24px; } }
+  /* scrolled, the bar is the header: the title comes in small at its start */
+  .sentinel { height: 1px; margin-bottom: -1px; }
+  .mini { display: none; align-items: center; gap: 8px; padding: 0 8px 0 4px; margin-right: 4px; font: 600 15px/20px var(--f-title); letter-spacing: -.3px; white-space: nowrap; border-right: 1px solid var(--rule); }
+  .mini .beta { font: 500 10px/12px var(--f-title); letter-spacing: .02em; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 2px 6px; }
+  .bar.stuck .mini { display: inline-flex; animation: mini-in .2s ease-out; }
+  /* room for it on one line: a shorter search, and the card size, set once, stays up top */
+  .bar.stuck .search input { width: 120px; }
+  .bar.stuck [aria-label="Card size"] { display: none; }
+  @keyframes mini-in { from { opacity: 0; translate: -4px 0; } }
+  @media (prefers-reduced-motion: reduce) { .bar.stuck .mini { animation: none; } }
+  /* on a phone the bar wraps to several rows, too tall to hold over the grid: it scrolls away with the header */
+  @media (max-width: 760px) { .bar { position: static; } .bar.stuck .mini { display: none; } }
+  .find { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .search { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; background: var(--chip); border-radius: 8px; color: var(--muted); }
+  .search svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; flex: none; }
+  .search input { border: 0; background: transparent; color: var(--text); font: inherit; font-size: 13px; width: 160px; outline: none; }
+  .search:focus-within { outline: 2px solid var(--bright); outline-offset: 1px; }
+  /* the bar's tips open below it, so they stay on screen when it is held at the top */
+  .bar [data-tip]::after { bottom: auto; top: calc(100% + 6px); translate: -50% -4px; }
+  .bar [data-tip]:hover::after, .bar [data-tip]:focus-visible::after { translate: -50% 0; }
+  .card[hidden] { display: none; }
+  .empty { max-width: 1200px; margin: 0 auto; padding: 48px 24px; text-align: center; color: var(--muted); }
   /* the signature at the foot: the TomTom pin, a rule and the word Design, with a quiet beta tag */
   .brand { max-width: 1200px; margin: 0 auto; padding: 8px 24px 40px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--muted); font-size: 12.5px; }
   .brand .logo { height: 16px; width: auto; display: block; }
-  .brand .bar { width: 1px; height: 12px; background: var(--rule); }
+  .brand .sep { width: 1px; height: 12px; background: var(--rule); }
   .brand .word { font-weight: 600; }
-  .brand .beta { font-size: 9.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--rule); border-radius: 999px; padding: 1px 6px; }
-  h1 { margin: 0 0 4px; font-size: 20px; letter-spacing: -.01em; }
-  header p { margin: 0; color: var(--muted); }
+  h1 { margin: 0 0 8px; font: 600 26px/32px var(--f-title); letter-spacing: -.8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h1 .beta { font: 500 12px/16px var(--f-title); letter-spacing: .02em; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 4px 8px; }
+  header p { margin: 0; color: var(--muted); font-size: 14px; line-height: 20px; max-width: 560px; }
 
   .seg { display: inline-flex; background: var(--chip); border-radius: 8px; padding: 2px; gap: 2px; }
   .seg button { border: 0; background: transparent; padding: 5px 11px; border-radius: 6px; cursor: pointer; color: var(--muted); font-size: 13px; }
-  .seg button[aria-pressed="true"] { background: var(--card); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .seg button[aria-pressed="true"] { background: var(--card); color: var(--text); box-shadow: var(--e2); }
   .seg button:focus-visible, .btn:focus-visible, .card:focus-visible, .icon:focus-visible { outline: 2px solid var(--bright); outline-offset: 2px; }
 
-  main { max-width: 1200px; margin: 0 auto; padding: 16px 24px 48px; --min: 230px; --gap: 16px;
+  main { max-width: 1200px; margin: 0 auto; padding: 24px 24px 48px; --min: 230px; --gap: 16px;
     display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fill, minmax(var(--min), 1fr)); }
   main[data-density="compact"] { --min: 160px; --gap: 12px; }
   main[data-density="large"] { --min: 320px; --gap: 20px; }
   main[data-density="compact"] .card .alt { display: none; }
   .tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  .card { background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 8px 8px 12px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 8px; transition: border-color .2s; }
-  .card:hover { border-color: color-mix(in srgb, var(--bright) 45%, var(--rule)); }
+  .card { position: relative; background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 8px 8px 12px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 8px; transition: border-color .2s; }
+  .card:has(.open:focus-visible) { outline: 2px solid var(--bright); outline-offset: 2px; }
+  /* the whole card opens the figure: its name is the button, stretched over the card */
+  .card .open { all: unset; display: flex; align-items: center; gap: 8px; padding: 0 6px; min-width: 0; }
+  .card .open::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+  /* where there is no hover, a play button runs the card's story; with a mouse, the hover does */
+  .thumb { position: relative; }
+  .play { position: absolute; z-index: 1; right: 8px; bottom: 8px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--rule); cursor: pointer;
+    background: color-mix(in srgb, var(--card) 90%, transparent); color: var(--text); display: grid; place-items: center; padding: 0; }
+  .play svg { width: 14px; height: 14px; fill: currentColor; display: block; }
+  .play .pause, .play[aria-pressed="true"] .go-play { display: none; }
+  .play[aria-pressed="true"] .pause { display: block; }
+  .play:focus-visible { outline: 2px solid var(--bright); outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) { .play { display: none; } }
+  /* the card says it opens by answering the pointer: its edge firms up and it lifts a little, in neutral grey, so the figure keeps the only colour */
+  .card { transition: border-color .2s, box-shadow .2s, translate .2s; }
+  .card:hover { border-color: var(--rule-hi); box-shadow: var(--e3); translate: 0 -2px; }
+  .card:active { translate: 0 0; box-shadow: none; }
+  @media (prefers-reduced-motion: reduce) { .card:hover { translate: none; } }
   /* every card the same height: the name on one line, the alt text on two, both cut with an ellipsis */
-  .card .name { padding: 0 6px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .name { min-width: 0; font-family: var(--f-title); font-weight: 600; letter-spacing: -.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .card .alt { padding: 0 6px; color: var(--muted); font-size: 12.5px; line-height: 1.4; height: 2.8em;
     display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
   .thumb { background: var(--ground); border-radius: 8px; }
@@ -86,7 +136,7 @@
   dialog { border: 0; padding: 0; background: transparent; max-width: min(960px, calc(100vw - 32px)); width: 100%; color: var(--text); }
   dialog::backdrop { background: var(--scrim); }
   /* the sheet keeps one height whatever the figure, so stepping through them does not jump */
-  .sheet { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) 280px; height: 480px; }
+  .sheet { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; box-shadow: var(--e6); overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) 280px; height: 480px; }
   .view { background: var(--ground); display: grid; place-items: center; padding: 24px; position: relative; transition: background .2s; }
   #m-stage { width: 100%; display: grid; place-items: center; }
   /* 5:4, and short enough to sit in the 480px sheet with its padding */
@@ -94,7 +144,7 @@
   .view .hl-stage, .view .static { width: min(100%, 520px); }
   .view .static svg { width: 100%; height: auto; display: block; }
   .side { padding: 20px; display: flex; flex-direction: column; gap: 14px; border-left: 1px solid var(--rule); min-height: 0; }
-  .side h2 { margin: 0; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .side h2 { margin: 0; font: 600 20px/24px var(--f-title); letter-spacing: -.4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .side .slug { color: var(--muted); font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .side .alt { color: var(--muted); font-size: 13px; line-height: 1.45; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 6; line-clamp: 6; overflow: hidden; }
   .side .controls { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
@@ -125,9 +175,9 @@
   #make-open { background: var(--chip); border-color: transparent; color: var(--muted); height: 30px; font-size: 13px; }
   #make-open:hover { color: var(--text); }
   #make { max-width: min(520px, calc(100vw - 32px)); }
-  .make { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+  .make { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; box-shadow: var(--e6); padding: 22px; display: flex; flex-direction: column; gap: 14px; }
   .make .head { display: flex; justify-content: space-between; align-items: center; }
-  .make h2 { margin: 0; font-size: 18px; }
+  .make h2 { margin: 0; font: 600 20px/24px var(--f-title); letter-spacing: -.4px; }
   .make p { margin: 0; color: var(--muted); font-size: 13px; }
   /* each step its own row: a numbered disc on the left, the step under its title, a rule between steps */
   .make ol { margin: 0; padding: 0; list-style: none; counter-reset: s; display: flex; flex-direction: column; }
@@ -152,9 +202,16 @@
 </head>
 <body>
 <header>
-  <div>
-    <h1>TomTom Docs illustrations</h1>
-    <p>Hover a card to play its story. Open one to see it large, switch light and dark, and copy or download the SVG.</p>
+  <div class="intro">
+    <h1>TomTom Docs illustrations <span class="beta">Beta</span></h1>
+    <p>Hover a card, or press its play button, to see its story. Open one to see it large, switch light and dark, and copy or download the SVG.</p>
+  </div>
+</header>
+<div class="sentinel" id="sentinel"></div>
+<div class="bar" id="bar">
+  <div class="find">
+    <span class="mini" aria-hidden="true">Docs illustrations <span class="beta">Beta</span></span>
+    <label class="search"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.4 10.4l3.1 3.1"/></svg><input id="q" type="search" placeholder="Search" aria-label="Search illustrations" autocomplete="off"></label>
   </div>
   <div class="tools">
     <div class="seg" role="group" aria-label="Card size">
@@ -173,17 +230,18 @@
     </div>
     <button class="btn" type="button" id="make-open"><svg viewBox="0 0 16 16"><path d="M7 2.5c.4 2.6 1.4 3.6 4 4-2.6.4-3.6 1.4-4 4-.4-2.6-1.4-3.6-4-4 2.6-.4 3.6-1.4 4-4z"/><path d="M12.5 9.5c.2 1.2.8 1.8 2 2-1.2.2-1.8.8-2 2-.2-1.2-.8-1.8-2-2 1.2-.2 1.8-.8 2-2z"/></svg> Make yours</button>
   </div>
-</header>
+</div>
 <main id="grid"></main>
-<footer class="brand" aria-label="TomTom Design"><svg class="logo" viewBox="3.4 0.6 12.5 21" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.62056 20.2788L11.8705 16.3926H7.37061L9.62056 20.2788Z" fill="#DF1B12"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.61998 12.193C7.92801 12.193 6.55158 10.8202 6.55158 9.13306C6.55158 7.44575 7.92801 6.073 9.61998 6.073C11.312 6.073 12.6884 7.44575 12.6884 9.13306C12.6884 10.8202 11.312 12.193 9.61998 12.193M9.61962 3.27832C6.38283 3.27832 3.74951 5.90438 3.74951 9.13224C3.74951 12.36 6.38283 14.986 9.61962 14.986C12.8564 14.986 15.4897 12.36 15.4897 9.13224C15.4897 5.90438 12.8564 3.27832 9.61962 3.27832" fill="#DF1B12"/></svg><span class="bar"></span><span class="word">Design</span><span class="beta">Beta</span></footer>
+<p class="empty" id="empty" hidden>No illustrations match. Try another word, or show all.</p>
+<footer class="brand" aria-label="TomTom Design"><svg class="logo" viewBox="3.4 0.6 12.5 21" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.62056 20.2788L11.8705 16.3926H7.37061L9.62056 20.2788Z" fill="#DF1B12"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.61998 12.193C7.92801 12.193 6.55158 10.8202 6.55158 9.13306C6.55158 7.44575 7.92801 6.073 9.61998 6.073C11.312 6.073 12.6884 7.44575 12.6884 9.13306C12.6884 10.8202 11.312 12.193 9.61998 12.193M9.61962 3.27832C6.38283 3.27832 3.74951 5.90438 3.74951 9.13224C3.74951 12.36 6.38283 14.986 9.61962 14.986C12.8564 14.986 15.4897 12.36 15.4897 9.13224C15.4897 5.90438 12.8564 3.27832 9.61962 3.27832" fill="#DF1B12"/></svg><span class="sep"></span><span class="word">Design</span></footer>
 
 <dialog id="modal" aria-labelledby="m-title">
   <div class="sheet">
     <div class="view" id="m-view">
       <div class="top">
-        <button class="icon" type="button" id="m-prev" aria-label="Previous">‹</button>
-        <button class="icon" type="button" id="m-next" aria-label="Next">›</button>
-        <button class="icon" type="button" id="m-close" aria-label="Close">✕</button>
+        <button class="icon" type="button" id="m-prev" aria-label="Previous"><svg viewBox="0 0 16 16"><path d="M10 3.5L5.5 8l4.5 4.5"/></svg></button>
+        <button class="icon" type="button" id="m-next" aria-label="Next"><svg viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5"/></svg></button>
+        <button class="icon" type="button" id="m-close" aria-label="Close"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
       </div>
       <div id="m-stage"></div>
     </div>
@@ -237,7 +295,7 @@
   <div class="make">
     <div class="head">
       <h2 id="mk-title">Make yours</h2>
-      <button class="icon" type="button" id="mk-close" aria-label="Close">✕</button>
+      <button class="icon" type="button" id="mk-close" aria-label="Close"><svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
     </div>
     <p>Draw your own illustration in this style, with any coding agent that runs skills: Claude Code, Codex, Cursor, Gemini CLI and the like.</p>
     <ol>
@@ -284,7 +342,7 @@
    figures' top-level names never meet. */
 const TRAVEL = 650, DWELL = 900, GAP = 700;
 const ease = (t) => 1 - Math.pow(1 - t, 3);
-const SURFACE = { light: "#FFFFFF", dark: "#14171C" }, BRIGHT = { light: "#1988CF", dark: "#6CC0F5" };
+const SURFACE = { light: "#FFFFFF", dark: "#0C0C12" }, BRIGHT = { light: "#1988CF", dark: "#6CC0F5" };
 const FIGS = new Map();
 const clamp01 = (v) => Math.min(1, Math.max(0, v));
 let INDEX = [];
@@ -470,7 +528,7 @@ modal.addEventListener("close", () => { state.live?.destroy(); state.live = null
 addEventListener("hashchange", readHash);
 modal.addEventListener("click", (e) => { if (e.target === modal) modal.close(); });
 document.getElementById("m-close").addEventListener("click", () => modal.close());
-const step = (d) => { state.i = (state.i + d + INDEX.length) % INDEX.length; render(); };
+const step = (d) => { const k = ORDER.indexOf(state.i); state.i = ORDER[(k + d + ORDER.length) % ORDER.length] ?? state.i; render(); };
 document.getElementById("m-prev").addEventListener("click", () => step(-1));
 document.getElementById("m-next").addEventListener("click", () => step(1));
 modal.addEventListener("keydown", (e) => { if (e.key === "ArrowLeft") step(-1); if (e.key === "ArrowRight") step(1); });
@@ -552,25 +610,57 @@ document.getElementById("mk-copy").addEventListener("click", () => copy(document
     let fig;
     new Function("HL", "hairline", await (await fetch(`figures/${slug}.js`)).text())(HL, (f) => { fig = f; });
     FIGS.set(slug, fig);
-    const card = document.createElement("button");
-    card.type = "button"; card.className = "card";
-    card.setAttribute("aria-label", `Open ${name}`);
-    card.innerHTML = `<div class="thumb"><div class="hl-stage"></div></div><span class="name"></span><span class="alt"></span>`;
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<div class="thumb"><div class="hl-stage"></div><button class="play" type="button" aria-pressed="false"><svg class="go-play" viewBox="0 0 14 14"><path d="M4 2.5v9l7.5-4.5z"/></svg><svg class="pause" viewBox="0 0 14 14"><rect x="3.5" y="3" width="2.4" height="8" rx=".6"/><rect x="8.1" y="3" width="2.4" height="8" rx=".6"/></svg></button></div>`
+      + `<button class="open" type="button"><span class="name"></span></button><span class="alt"></span>`;
     card.querySelector(".name").textContent = name;
     card.querySelector(".alt").textContent = alt;
+    const open = card.querySelector(".open"), play = card.querySelector(".play");
+    open.setAttribute("aria-label", `Open ${name}`);
+    play.setAttribute("aria-label", `Play ${name}`);
     grid.appendChild(card);
     const m = mountStage(card.querySelector(".hl-stage"), fig);
     if (m) {
-      card.addEventListener("pointerenter", () => m.drive.start());
-      card.addEventListener("pointerleave", () => m.drive.stop());
-      card.addEventListener("focus", () => m.drive.start());
-      card.addEventListener("blur", () => m.drive.stop());
-    }
+      // a mouse plays the story on hover; a touch would open the card, so it gets the play button instead
+      card.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") m.drive.start(); });
+      card.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") m.drive.stop(); });
+      open.addEventListener("focus", () => m.drive.start());
+      open.addEventListener("blur", () => m.drive.stop());
+      play.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const on = play.getAttribute("aria-pressed") !== "true";
+        // one story at a time: starting this one stops any other
+        if (on) CARDS.forEach((c) => c.stop?.());
+        on ? m.drive.start() : m.drive.stop();
+        play.setAttribute("aria-pressed", String(on));
+      });
+    } else play.remove();
     card.addEventListener("click", () => openModal(i));
+    CARDS.push({ card, i, e: INDEX[i], stop: m && (() => { m.drive.stop(); play.setAttribute("aria-pressed", "false"); }) });
   }
   // a link with #fig=… opens on that figure
+  arrange();
   readHash();
 })();
+
+/* ---------- find: search over the cards, which stand in name order ---------- */
+const CARDS = [], pick = { q: "" };
+let ORDER = [];
+function arrange() {
+  const grid = document.getElementById("grid"), q = pick.q.toLowerCase();
+  const hit = (c) => !q || [c.e.name, c.e.for, c.e.alt].some((t) => t.toLowerCase().includes(q));
+  const sorted = [...CARDS].sort((a, b) => a.e.name.localeCompare(b.e.name));
+  for (const c of sorted) { c.card.hidden = !hit(c); grid.appendChild(c.card); }
+  // the modal steps through what the grid shows, in its order; with nothing shown, through all of it
+  const shown = sorted.filter((c) => !c.card.hidden);
+  ORDER = (shown.length ? shown : sorted).map((c) => c.i);
+  document.getElementById("empty").hidden = shown.length > 0;
+}
+document.getElementById("q").addEventListener("input", (e) => { pick.q = e.target.value.trim(); arrange(); });
+// the bar turns into the header once it sticks: the sentinel above it has scrolled out of view
+new IntersectionObserver(([en]) => document.getElementById("bar").classList.toggle("stuck", !en.isIntersecting), { rootMargin: "-13px 0px 0px 0px" })
+  .observe(document.getElementById("sentinel"));
 </script>
 </body>
 </html>

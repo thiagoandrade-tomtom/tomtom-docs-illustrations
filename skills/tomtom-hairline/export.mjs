@@ -13,7 +13,7 @@
  * the others frame the drawing itself, with a margin, in their shape:
  *   docs 400×320 · square 400×400 · landscape 4:3 480×360 · portrait 3:4 360×480 · wide 16:9 640×360
  * Palettes: blueprint (the TomTom blue), mono (black and white), red (TomTom red).
- * Themes: light (on white) or dark (on #14171C).
+ * Themes: light (on white) or dark (on #0C0C12, Playbook's dark floor).
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -26,7 +26,7 @@ const PALETTES = {
   mono: { ink: "#6B6F78", light: "#1B1C1F", dark: "#F2F3F5" },
   red: { ink: "#DF1B12", light: "#DF1B12", dark: "#FF6F61" },
 };
-const GROUND = { light: "#FFFFFF", dark: "#14171C" };
+const GROUND = { light: "#FFFFFF", dark: "#0C0C12" };
 
 const args = process.argv.slice(2), src = args.find((a) => !a.startsWith("--"));
 const opt = (k, d) => args.find((a) => a.startsWith(`--${k}=`))?.split("=")[1] ?? d;
