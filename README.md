@@ -92,6 +92,8 @@ a small page per figure that carries its preview image for Slack and the like
 figure open. Make the previews and share pages with
 `node tools/export-share.mjs` after `export-svg.mjs`: they land in `og/` and
 `share/`.
+Every preview's address carries `?v=` and the day it was made, so a new run is
+a new address and Slack and the like fetch a fresh preview instead of their cached one.
 
 ## Colour styles
 

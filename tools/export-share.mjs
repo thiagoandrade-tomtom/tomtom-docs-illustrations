@@ -19,6 +19,9 @@ import { createRequire } from "node:module";
 import { homedir } from "node:os";
 
 const SITE = "https://thiagoandrade-tomtom.github.io/tomtom-docs-illustrations/";
+// the previews' version, on every image address: Slack and the like keep a preview by its image's address, so a new
+// version is a new address and a fresh preview. Bump it when the previews change: node tools/export-share.mjs
+const VERSION = new Date().toISOString().slice(0, 10).replace(/-/g, "");
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const cache = process.env.HAIRLINE_LOOK_CACHE || join(homedir(), "Library/Caches/hairline-look");
 const { chromium } = createRequire(join(cache, "package.json"))("playwright-core");
@@ -65,7 +68,7 @@ for (const { slug, name, for: forWhat, alt } of index) {
   if (only.length && !only.includes(slug)) continue;
   const f = flat(slug);
   await shoot(card([svgOf(slug)], name, `TomTom Docs illustrations · ${forWhat}`), f + ".png");
-  const title = `${name} · TomTom Docs illustrations`, url = `${SITE}share/${f}.html`, img = `${SITE}og/${f}.png`;
+  const title = `${name} · TomTom Docs illustrations`, url = `${SITE}share/${f}.html`, img = `${SITE}og/${f}.png?v=${VERSION}`;
   writeFileSync(join(root, "share", f + ".html"), `<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
@@ -96,8 +99,11 @@ for (const { slug, name, for: forWhat, alt } of index) {
 }
 
 if (!only.length) {
-  const pick = ["map-layers", "traffic", "agentic-map", "mcps"].filter((s) => index.some((e) => e.slug === s));
+  const pick = ["map-layers", "routing", "mcps"].filter((s) => index.some((e) => e.slug === s));
   await shoot(card(pick.map(svgOf), "TomTom Docs illustrations", `${index.length} hairline illustrations`), "index.png");
   console.log("og/index.png");
+  // the gallery's own page carries the same versioned address
+  const page = join(root, "index.html");
+  writeFileSync(page, readFileSync(page, "utf8").replace(/og\/index\.png(\?v=\d+)?"/g, `og/index.png?v=${VERSION}"`));
 }
 await browser.close();
