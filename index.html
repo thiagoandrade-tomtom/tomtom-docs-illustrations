@@ -63,9 +63,6 @@
   .mini { display: none; align-items: center; gap: 8px; padding: 0 8px 0 4px; margin-right: 4px; font: 600 15px/20px var(--f-title); letter-spacing: -.3px; white-space: nowrap; border-right: 1px solid var(--rule); }
   .mini .beta { font: 500 10px/12px var(--f-title); letter-spacing: .02em; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 2px 6px; }
   .bar.stuck .mini { display: inline-flex; animation: mini-in .2s ease-out; }
-  /* room for it on one line: a shorter search, and the card size, set once, stays up top */
-  .bar.stuck .search input { width: 120px; }
-  .bar.stuck [aria-label="Card size"] { display: none; }
   @keyframes mini-in { from { opacity: 0; translate: -4px 0; } }
   @media (prefers-reduced-motion: reduce) { .bar.stuck .mini { animation: none; } }
   /* on a phone the bar wraps to several rows, too tall to hold over the grid: it scrolls away with the header */
