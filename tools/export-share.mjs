@@ -31,15 +31,18 @@ mkdirSync(join(root, "og"), { recursive: true });
 mkdirSync(join(root, "share"), { recursive: true });
 
 /** The card around one or more figures' SVG markup. */
-const card = (figs, title, sub) => `<!doctype html><html><head><meta charset="utf-8"><style>
+const card = (figs, title, sub) => `<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400&family=Space+Grotesk:wght@600&display=block">
+<style>
+  /* the gallery's look: Playbook's s0 floor, its b-lo edge, t-hi and t-med text, Space Grotesk and DM Sans */
   * { box-sizing: border-box; margin: 0; }
-  body { width: 1200px; height: 630px; background: #F5F6F8; font-family: -apple-system, "Segoe UI", system-ui, sans-serif; color: #1B1C1F; }
-  .card { position: absolute; inset: 32px; background: #FFFFFF; border: 1px solid #E4E6EA; border-radius: 24px; overflow: hidden; }
+  body { width: 1200px; height: 630px; background: #FFFFFF; font-family: "DM Sans", system-ui, sans-serif; color: #000000; }
+  .card { position: absolute; inset: 32px; background: #FFFFFF; border: 1px solid #E5E5E5; border-radius: 24px; overflow: hidden; }
   .figs { position: absolute; left: 48px; right: 48px; top: 36px; bottom: 124px; display: flex; gap: 40px; align-items: center; justify-content: center; }
   .figs svg { max-height: 100%; height: 100%; width: auto; max-width: 100%; flex: 0 1 auto; min-width: 0; }
   .text { position: absolute; left: 48px; right: 48px; bottom: 36px; display: flex; align-items: baseline; justify-content: space-between; gap: 24px; }
-  h1 { font-size: 40px; font-weight: 650; letter-spacing: -0.01em; }
-  p { font-size: 22px; color: #6B6F76; white-space: nowrap; }
+  h1 { font: 600 40px/48px "Space Grotesk", system-ui, sans-serif; letter-spacing: -1px; }
+  p { font-size: 22px; color: #5C5C5C; white-space: nowrap; }
 </style></head><body><div class="card"><div class="figs">${figs.join("")}</div>
 <div class="text"><h1>${esc(title)}</h1><p>${esc(sub)}</p></div></div></body></html>`;
 
@@ -48,7 +51,8 @@ const svgOf = (slug) => readFileSync(join(root, "svg", slug + ".svg"), "utf8").r
 const browser = await chromium.launch({ channel: "chrome" }).catch(() => chromium.launch());
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
 async function shoot(html, file) {
-  await page.setContent(html);
+  await page.setContent(html, { waitUntil: "networkidle" });
+  await page.evaluate(() => document.fonts.ready);
   // each figure cropped to its drawing, with a little air, so it fills the card
   await page.evaluate(() => document.querySelectorAll(".figs svg").forEach((svg) => {
     const b = svg.getBBox(), m = Math.max(b.width, b.height) * 0.05;

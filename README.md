@@ -97,10 +97,17 @@ figure open. Make the previews and share pages with
 
 The gallery can show and export every figure in three styles: **Blueprint**
 (#1988CF, the default and what `svg/` ships), **Black and white** (ink #6B6F78,
-bright #1B1C1F on light, #F2F3F5 on dark) and **TomTom red** (#DF1B12, bright
-#FF6F61 on dark). Edge, mid and lo are the ink mixed into the background at 88,
-62 and 38%, as for Blueprint. The TomTom red value is a best guess: set it to
-the brand's exact red in `index.html` (`:root[data-palette="red"]`).
+#B4B8C0 on dark; bright #1B1C1F on light, #F2F3F5 on dark) and **TomTom red**
+(#DF1B12, Playbook's brand red, one red on light and on dark). Edge, mid and lo
+are the ink mixed into the background at 88, 62 and 38%, as for Blueprint. The
+values are in `index.html` (`:root[data-palette="…"]`) and in the skill's
+`export.mjs`.
+
+The gallery's interface is on Playbook's tokens: s0 for the page, the cards and
+the figures' ground (#FFFFFF, #0C0C12 on dark), s1 for controls, its borders,
+text and elevation, on the 4px grid. Titles are in Space Grotesk and text in DM
+Sans, free stand-ins for Gilroy and Proxima Nova, whose licences do not cover a
+public site. The link previews in `og/` follow the same look.
 
 ## Credits
 

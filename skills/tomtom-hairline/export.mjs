@@ -22,9 +22,11 @@ import { cacheDir, launch, playwright } from "./look.mjs";
 const FORMATS = { docs: [400, 320], square: [400, 400], landscape: [480, 360], portrait: [360, 480], wide: [640, 360] };
 // the ink edge/mid/lo are mixed from, and the bright stroke on light and on dark, as the gallery has them
 const PALETTES = {
-  blueprint: { ink: "#1988CF", light: "#1988CF", dark: "#6CC0F5" },
-  mono: { ink: "#6B6F78", light: "#1B1C1F", dark: "#F2F3F5" },
-  red: { ink: "#DF1B12", light: "#DF1B12", dark: "#FF6F61" },
+  blueprint: { ink: { light: "#1988CF", dark: "#1988CF" }, light: "#1988CF", dark: "#6CC0F5" },
+  // black and white's grey ink goes lighter on dark, or its lines are too dim to see
+  mono: { ink: { light: "#6B6F78", dark: "#B4B8C0" }, light: "#1B1C1F", dark: "#F2F3F5" },
+  // TomTom red is one red, the same on light and on dark
+  red: { ink: { light: "#DF1B12", dark: "#DF1B12" }, light: "#DF1B12", dark: "#DF1B12" },
 };
 const GROUND = { light: "#FFFFFF", dark: "#0C0C12" };
 
@@ -38,7 +40,7 @@ if (!src || !FORMATS[format] || !PALETTES[palette] || !GROUND[theme]) {
 
 /** a mixed into b at p, as CSS color-mix(in srgb) does. */
 const mix = (a, b, p) => "#" + [1, 3, 5].map((i) => Math.round(parseInt(a.slice(i, i + 2), 16) * p + parseInt(b.slice(i, i + 2), 16) * (1 - p)).toString(16).padStart(2, "0")).join("").toUpperCase();
-const { ink } = PALETTES[palette], bg = GROUND[theme];
+const ink = PALETTES[palette].ink[theme], bg = GROUND[theme];
 const vars = { plate: bg, hi: PALETTES[palette][theme], edge: mix(ink, bg, 0.88), mid: mix(ink, bg, 0.62), lo: mix(ink, bg, 0.38) };
 const style = Object.entries(vars).map(([k, v]) => `--hairline-${k}:${v};`).join("") + "--hairline-stroke:1.1;";
 

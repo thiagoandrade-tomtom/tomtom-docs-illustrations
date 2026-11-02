@@ -30,16 +30,18 @@
     --page: #0C0C12; --card: #0C0C12; --ground: #0C0C12; --chip: #292930;
     --text: #FFFFFF; --muted: rgba(255, 255, 255, .72); --rule: rgba(255, 255, 255, .16); --rule-hi: rgba(255, 255, 255, .24); --scrim: rgba(0, 0, 0, .6);
   }
-  /* the colour style: the ink edge/mid/lo are mixed from, and the bright stroke on light and on dark */
-  :root { --ink: #1988CF; --bright-l: #1988CF; --bright-d: #6CC0F5; --bright: var(--bright-l); }
-  :root[data-palette="mono"] { --ink: #6B6F78; --bright-l: #1B1C1F; --bright-d: #F2F3F5; }
-  :root[data-palette="red"] { --ink: #DF1B12; --bright-l: #DF1B12; --bright-d: #FF6F61; }
-  :root[data-theme="dark"] { --bright: var(--bright-d); }
-  .surface-light { --ground: #FFFFFF; --bright: var(--bright-l); }
-  .surface-dark { --ground: #0C0C12; --bright: var(--bright-d); }
+  /* the colour style: the ink edge/mid/lo are mixed from, and the bright stroke, each on light and on dark.
+     Black and white's grey ink goes lighter on dark, or mixed into the dark floor its lines are too dim to see;
+     TomTom red is one red, the same on light and on dark */
+  :root { --ink-l: #1988CF; --ink-d: #1988CF; --bright-l: #1988CF; --bright-d: #6CC0F5; --ink: var(--ink-l); --bright: var(--bright-l); }
+  :root[data-palette="mono"] { --ink-l: #6B6F78; --ink-d: #B4B8C0; --bright-l: #1B1C1F; --bright-d: #F2F3F5; }
+  :root[data-palette="red"] { --ink-l: #DF1B12; --ink-d: #DF1B12; --bright-l: #DF1B12; --bright-d: #DF1B12; }
+  :root[data-theme="dark"] { --ink: var(--ink-d); --bright: var(--bright-d); }
+  .surface-light { --ground: #FFFFFF; --ink: var(--ink-l); --bright: var(--bright-l); }
+  .surface-dark { --ground: #0C0C12; --ink: var(--ink-d); --bright: var(--bright-d); }
   .sw { width: 12px; height: 12px; border-radius: 50%; display: block; }
   .sw-blueprint { background: #1988CF; }
-  .sw-mono { background: linear-gradient(135deg, #1B1C1F 50%, #E4E6EA 50%); box-shadow: inset 0 0 0 1px #9A9EA6; }
+  .sw-mono { background: linear-gradient(135deg, #1B1C1F 50%, #E5E5E5 50%); box-shadow: inset 0 0 0 1px #CCCCCC; }
   .sw-red { background: #DF1B12; }
   .seg button:has(.sw) { padding: 7px 8px; }
   * { box-sizing: border-box; }

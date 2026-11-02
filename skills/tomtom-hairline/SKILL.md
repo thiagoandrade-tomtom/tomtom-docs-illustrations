@@ -33,6 +33,10 @@ Ask only for what is for; take the defaults for the rest and say which you took.
   never a decorative base tile.
 - Stroke 1.1 and the kernel's classes only. Colour comes from the tokens at export, never from the
   figure: no colours, fills or gradients in the code.
+- The palettes are fixed in `export.mjs`, the same as the gallery's: never pick other tones. Blueprint is
+  #1988CF (its highlight #6CC0F5 on dark); black and white is a grey ink (#6B6F78, #B4B8C0 on dark)
+  with a near-black or near-white highlight; TomTom red is one red, #DF1B12, on light and on dark.
+  Light stands on #FFFFFF and dark on #0C0C12, Playbook's s0.
 - One highlight at a time, a composed rest pose (it is the thumbnail), one short story under the
   pointer, safe with reduced motion.
 - No words, numbers or logos in the drawing. Never name or picture another company's product.
